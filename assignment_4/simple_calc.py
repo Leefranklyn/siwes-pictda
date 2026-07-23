@@ -1,7 +1,6 @@
 """This is a simple calculator program that performs
 basic arithmetic operations on two numbers."""
 
-
 def get_number(input_value):
     while True:
         try:
@@ -37,3 +36,5 @@ print(f"Multiplication: {multiplication}")
 print(f"Division: {division}")
 print(f"Modulus: {modulus}")
 print(f"Power: {power}")
+
+num3 = '23'
