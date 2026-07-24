@@ -1,4 +1,4 @@
-# Assigment 1 - Student Registration System
+# Assigment 3 - Student Registration System
 
 ## Description
 This program collects information from the users using python's 'input()' method and displays the data ina formatted manner.
@@ -7,3 +7,6 @@ This program collects information from the users using python's 'input()' method
 - Accept user input
 - Validate numeric input
 - Display user information using formatted output
+
+## Sample Output
+![alt text](<../misallen/Screenshot (273).png>)
