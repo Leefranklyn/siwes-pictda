@@ -11,4 +11,5 @@ This assignment demonstrates how to create and use a Python virtual environment.
 - Create a `requirements.txt` file
 - Use the virtual environment to run the program
 
+## Sample Output
 ![alt_text](<../misallen/20260829150900.png>)
