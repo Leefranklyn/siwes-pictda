@@ -1,0 +1,4 @@
+food:5000.0
+door:0.0
+water:10000.0
+airtime:4000.0
