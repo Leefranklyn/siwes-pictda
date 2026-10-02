@@ -1,0 +1,5 @@
+<div class="p-5">
+  <p class="text-sm text-ink-400">{{ label }}</p>
+  <p class="mt-2 font-display text-4xl font-semibold tracking-tight tabular-nums {{ number_class|default:'text-ink-50' }}">{{ value }}</p>
+  {% if sparkline %}<div class="relative mt-3 h-10"><canvas id="{{ sparkline }}" aria-label="Student enrollment trend" role="img"></canvas></div>{% endif %}
+</div>

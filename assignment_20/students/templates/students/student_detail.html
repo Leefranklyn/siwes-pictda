@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="{% url 'students:list' %}" class="text-sm text-ink-400 hover:text-ink-200">Students</a>
+<span class="text-sm text-ink-600"> / </span>
+<span class="text-sm text-ink-400">{{ student.first_name }}</span>
+
+<div class="mt-2 flex flex-wrap items-start justify-between gap-4 border-b border-ink-700 pb-6">
+  <div class="flex items-center gap-5">
+    {% include "ui/_avatar.html" with person=student size="large" %}
+    <div>
+      <h1 class="page-title">{{ student.full_name }}</h1>
+      <p class="mt-1.5 flex items-center gap-3 text-sm">
+        <span class="font-mono text-[13px] text-ink-200">{{ student.matric_no }}</span>
+        {% include "ui/_status_badge.html" with status=student.status %}
+      </p>
+      <p class="mt-1 text-sm text-ink-400">{{ student.department.name }}, {{ student.level }} level</p>
+    </div>
+  </div>
+  {% if not readonly %}
+  <div class="flex gap-3">
+    <a href="{% url 'students:edit' student.pk %}" class="button-secondary"><i class="ti ti-pencil text-lg" aria-hidden="true"></i>Edit</a>
+    <a href="{% url 'students:delete' student.pk %}" class="button-secondary hover:border-danger-500 hover:text-danger-400"><i class="ti ti-trash text-lg" aria-hidden="true"></i>Delete</a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="grid gap-10 pt-8 lg:grid-cols-3">
+  <div class="space-y-8 lg:col-span-2">
+    <section>
+      <h2 class="section-title">Personal details</h2>
+      <dl class="record-fields">
+        <dt>Date of birth</dt><dd class="tabular-nums">{{ student.dob }}</dd>
+        <dt>Gender</dt><dd>{{ student.get_gender_display }}</dd>
+        {% if student.photo and photo_uploads %}<dt>Photo</dt><dd></dd>{% endif %}
+      </dl>
+    </section>
+    <section class="border-t border-ink-700 pt-8">
+      <h2 class="section-title">Contact</h2>
+      <dl class="record-fields">
+        <dt>Email</dt><dd>{{ student.email }}</dd>
+        <dt>Phone</dt><dd class="tabular-nums">{{ student.phone }}</dd>
+        <dt>Address</dt><dd>{% if student.address %}{{ student.address }}{% else %}<span class="text-ink-600">-</span>{% endif %}</dd>
+      </dl>
+    </section>
+    <section class="border-t border-ink-700 pt-8">
+      <h2 class="section-title">Guardians</h2>
+      {% if student.guardians.all %}
+        {% for guardian in student.guardians.all %}
+        <div class="flex flex-wrap items-center justify-between gap-2 {% if not forloop.first %}border-t border-ink-700 pt-3{% endif %} py-3 first:border-t-0 first:pt-0">
+          <p class="text-sm font-medium text-ink-50">{{ guardian.full_name }}</p>
+          <p class="text-sm text-ink-400">{{ guardian.relationship }}, {{ guardian.phone }}{% if guardian.email %}, {{ guardian.email }}{% endif %}</p>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="mt-4 text-sm text-ink-400">No guardian on file.</p>
+      {% endif %}
+    </section>
+    <section class="border-t border-ink-700 pt-8">
+      <h2 class="section-title">Courses</h2>
+      {% if student.enrollments.all %}
+      <div class="table-wrapper mt-4">
+        <table class="data-table">
+          <thead>
+            <tr><th scope="col">Course</th><th scope="col">Units</th><th scope="col">Session</th><th scope="col">Semester</th><th scope="col">Grade</th>{% if not readonly %}<th scope="col" class="text-right"><span class="sr-only">Remove</span></th>{% endif %}</tr>
+          </thead>
+          <tbody>
+            {% for enrollment in student.enrollments.all %}
+            <tr>
+              <td><span class="font-mono text-[13px] text-ink-200">{{ enrollment.course.code }}</span><span class="block text-xs text-ink-400">{{ enrollment.course.title }}</span></td>
+              <td class="tabular-nums">{{ enrollment.course.credit_units }}</td>
+              <td class="tabular-nums">{{ enrollment.session }}</td>
+              <td>{{ enrollment.get_semester_display }}</td>
+              <td>{% if enrollment.grade %}<span class="font-medium text-ink-50">{{ enrollment.grade }}</span>{% else %}<span class="text-ink-400">Pending</span>{% endif %}</td>
+              {% if not readonly %}<td class="text-right">
+                <form method="post" action="{% url 'students:enrollment_remove' student.pk enrollment.pk %}">{% csrf_token %}
+                  <button type="submit" class="button-icon hover:text-danger-400" aria-label="Remove {{ enrollment.course.code }}" title="Remove {{ enrollment.course.code }}"><i class="ti ti-x text-lg" aria-hidden="true"></i></button>
+                </form>
+              </td>{% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      {% include "ui/_empty_state.html" with icon="ti-book-2" title="No courses yet" body="Add the first course for this student below." %}
+      {% endif %}
+      {% if not readonly %}
+      <form method="post" action="{% url 'students:enroll' student.pk %}" class="mt-5 flex flex-wrap items-end gap-3">
+        {% csrf_token %}
+        {% if enrollment_form.non_field_errors %}<div class="error-notice w-full">{{ enrollment_form.non_field_errors.0 }}</div>{% endif %}
+        {% for field in enrollment_form.visible_fields %}
+          <div class="min-w-40 flex-1">{% include "ui/_field.html" with field=field %}</div>
+        {% endfor %}
+        <button type="submit" class="button-primary">Add course</button>
+      </form>
+      {% endif %}
+    </section>
+  </div>
+
+  <aside class="space-y-8">
+    <div class="rounded-xl border border-ink-700 bg-ink-900 p-6">
+      <p class="text-sm text-ink-400">CGPA</p>
+      {% if cgpa is not None %}
+        <p class="mt-2 font-display text-5xl font-semibold text-gold-400 tabular-nums">{{ cgpa|floatformat:2 }}</p>
+        <p class="mt-2 text-sm text-ink-400">On a 5.0 scale, from {{ graded_count }} graded {{ graded_count|pluralize:"course,courses" }}</p>
+      {% else %}
+        <p class="mt-2 font-display text-2xl text-ink-400">Not available yet</p>
+        <p class="mt-2 text-sm text-ink-400">CGPA appears once grades are recorded for this student's courses.</p>
+      {% endif %}
+    </div>
+    <div>
+      <h2 class="section-title">Record</h2>
+      <dl class="mt-4 space-y-3 text-sm">
+        <div class="flex justify-between gap-4"><dt class="text-ink-400">Enrolled</dt><dd class="tabular-nums text-ink-50">{{ student.enrolled_on }}</dd></div>
+        <div class="flex justify-between gap-4"><dt class="text-ink-400">Last updated</dt><dd class="tabular-nums text-ink-50">{{ student.updated_at|date:"j M Y" }}</dd></div>
+        <div class="flex justify-between gap-4"><dt class="text-ink-400">Courses taken</dt><dd class="tabular-nums text-ink-50">{{ student.enrollments.count }}</dd></div>
+      </dl>
+    </div>
+  </aside>
+</div>
+{% endblock %}

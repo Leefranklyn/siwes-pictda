@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="{% url 'students:list' %}" class="text-sm text-ink-400 hover:text-ink-200">Students</a>
+<span class="text-sm text-ink-600"> / </span>
+<span class="text-sm text-ink-400">{{ page_title }}</span>
+<h1 class="page-title mt-2">{{ page_title }}</h1>
+
+{% if form.errors %}
+<div class="error-notice mt-6" role="alert">Fix the highlighted fields and save again.</div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" class="pb-4">
+  {% csrf_token %}
+  {{ guardians.management_form }}
+
+  <section class="form-section">
+    <div>
+      <h2 class="font-display text-base font-semibold text-ink-50">Personal details</h2>
+      <p class="mt-1 text-sm text-ink-400">Name, birth date, photo</p>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:col-span-2">
+      {% include "ui/_field.html" with field=form.first_name %}
+      {% include "ui/_field.html" with field=form.last_name %}
+      {% include "ui/_field.html" with field=form.dob %}
+      {% include "ui/_field.html" with field=form.gender %}
+      {% if form.photo %}
+      <div class="flex items-end gap-4 sm:col-span-2">
+        {% if object.pk %}{% include "ui/_avatar.html" with person=object size="preview" %}{% else %}<span id="photo-preview" class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-lg font-semibold ring-1 ring-inset ring-ink-700 bg-azure-500/15 text-azure-300">?</span>{% endif %}
+        <div class="flex-1">{% include "ui/_field.html" with field=form.photo %}</div>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div>
+      <h2 class="font-display text-base font-semibold text-ink-50">Contact</h2>
+      <p class="mt-1 text-sm text-ink-400">How to reach them</p>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:col-span-2">
+      {% include "ui/_field.html" with field=form.email %}
+      {% include "ui/_field.html" with field=form.phone %}
+      {% include "ui/_field.html" with field=form.address %}
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div>
+      <h2 class="font-display text-base font-semibold text-ink-50">Academic</h2>
+      <p class="mt-1 text-sm text-ink-400">Where they sit</p>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:col-span-2">
+      {% include "ui/_field.html" with field=form.matric_no %}
+      {% include "ui/_field.html" with field=form.department %}
+      {% include "ui/_field.html" with field=form.level %}
+      {% include "ui/_field.html" with field=form.status %}
+      {% include "ui/_field.html" with field=form.enrolled_on %}
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div>
+      <h2 class="font-display text-base font-semibold text-ink-50">Guardians</h2>
+      <p class="mt-1 text-sm text-ink-400">At least one contact</p>
+    </div>
+    <div class="lg:col-span-2" id="guardian-rows">
+      {% for guardian_form in guardians %}
+      <div class="guardian-row grid gap-5 border-t border-ink-700 pt-5 first:border-t-0 first:pt-0 sm:grid-cols-2{% if forloop.first %} first:border-t-0 first:pt-0{% endif %}">
+        {{ guardian_form.id }}
+        {% for field in guardian_form.visible_fields %}{% include "ui/_field.html" with field=field %}{% endfor %}
+        {% if guardian_form.instance.pk %}{% include "ui/_field.html" with field=guardian_form.DELETE %}{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="lg:col-span-2">
+      <button type="button" id="add-guardian" class="button-secondary"><i class="ti ti-plus text-lg" aria-hidden="true"></i>Add another guardian</button>
+    </div>
+  </section>
+
+  <div class="sticky bottom-0 -mx-4 mt-8 flex items-center justify-end gap-3 border-t border-ink-700 bg-ink-950 px-4 py-4 sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10">
+    <a href="{% if object.pk %}{% url 'students:detail' object.pk %}{% else %}{% url 'students:list' %}{% endif %}" class="button-secondary">Cancel</a>
+    <button type="submit" class="button-primary">{% if object.pk %}Save changes{% else %}Save student{% endif %}</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/template" id="guardian-template">
+  <div class="guardian-row grid gap-5 border-t border-ink-700 pt-5 sm:grid-cols-2">
+    {{ guardians.empty_form.id }}
+    {% for field in guardians.empty_form.visible_fields %}{% include "ui/_field.html" with field=field %}{% endfor %}
+  </div>
+</script>
+<script>
+  const rows = document.getElementById('guardian-rows');
+  const total = document.querySelector('#guardian-rows [name$="-TOTAL_FORMS"]');
+  document.getElementById('add-guardian')?.addEventListener('click', () => {
+    const template = document.getElementById('guardian-template');
+    const fragment = template.content.cloneNode(true);
+    const index = parseInt(total.value, 10);
+    fragment.querySelectorAll('input, select, textarea, label').forEach(node => {
+      ['name', 'for', 'id'].forEach(attr => {
+        if (node.hasAttribute(attr)) node.setAttribute(attr, node.getAttribute(attr).replace('__prefix__', String(index)));
+      });
+    });
+    rows.appendChild(fragment);
+    total.value = String(index + 1);
+  });
+  document.addEventListener('change', event => {
+    if (event.target.name?.endsWith('-DELETE')) event.target.closest('.guardian-row').hidden = event.target.checked;
+  });
+  if (document.getElementById('id_photo')) {
+    document.getElementById('id_photo').addEventListener('change', event => {
+      const preview = document.getElementById('photo-preview');
+      if (preview && event.target.files.length) {
+        preview.textContent = '';
+        const image = document.createElement('img');
+        image.src = URL.createObjectURL(event.target.files[0]);
+        image.alt = 'Photo preview';
+        image.className = 'h-16 w-16 rounded-full object-cover ring-1 ring-ink-700';
+        preview.appendChild(image);
+      }
+    });
+  }
+</script>
+{% endblock %}

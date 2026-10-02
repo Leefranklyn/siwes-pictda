@@ -1,0 +1,6 @@
+<div class="space-y-1.5">
+  <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-ink-50">{{ field.label }}{% if field.field.required %}<span class="text-azure-400"> *</span>{% endif %}</label>
+  {{ field }}
+  {% if field.help_text %}<p id="{{ field.auto_id }}_helptext" class="text-xs text-ink-400">{{ field.help_text }}</p>{% endif %}
+  {% if field.errors %}<div id="{{ field.auto_id }}_error" role="alert">{% for error in field.errors %}<p class="flex items-center gap-1.5 text-xs text-danger-400"><i class="ti ti-alert-circle" aria-hidden="true"></i>{{ error }}</p>{% endfor %}</div>{% endif %}
+</div>

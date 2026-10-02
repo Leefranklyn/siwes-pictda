@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="{% url 'students:courses' %}" class="text-sm text-ink-400 hover:text-ink-200">Courses</a>
+<span class="text-sm text-ink-600"> / </span>
+<span class="text-sm text-ink-400">{{ page_title }}</span>
+<h1 class="page-title mt-2">{{ page_title }}</h1>
+
+{% if form.errors %}<div class="error-notice mt-6" role="alert">Fix the highlighted fields and save again.</div>{% endif %}
+
+<form method="post" class="pb-4">
+  {% csrf_token %}
+  <section class="form-section border-t">
+    <div>
+      <h2 class="font-display text-base font-semibold text-ink-50">Course details</h2>
+      <p class="mt-1 text-sm text-ink-400">Code, title, and credit units</p>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:col-span-2">
+      {% include "ui/_field.html" with field=form.code %}
+      {% include "ui/_field.html" with field=form.title %}
+      {% include "ui/_field.html" with field=form.credit_units %}
+      {% include "ui/_field.html" with field=form.department %}
+    </div>
+  </section>
+  <div class="sticky bottom-0 -mx-4 flex items-center justify-end gap-3 border-t border-ink-700 bg-ink-950 px-4 py-4 sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10">
+    <a href="{% url 'students:courses' %}" class="button-secondary">Cancel</a>
+    <button type="submit" class="button-primary">{% if object.pk %}Save changes{% else %}Add course{% endif %}</button>
+  </div>
+</form>
+{% endblock %}

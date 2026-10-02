@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <h1 class="page-title">Students <span class="ml-2 text-lg font-normal text-ink-400 tabular-nums">({{ total_students }})</span></h1>
+  <a href="{% url 'students:add' %}" class="button-primary"><i class="ti ti-plus text-lg" aria-hidden="true"></i>Add student</a>
+</div>
+<div class="mt-6 flex flex-wrap items-center gap-3">
+  <div class="group relative min-w-64 flex-1">
+    <i class="ti ti-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-ink-400" aria-hidden="true"></i>
+    <input type="search" name="q" value="{{ request.GET.q }}" placeholder="Search by name, email, or matric number"
+           hx-get="{% url 'students:list' %}" hx-trigger="input changed delay:300ms, search"
+           hx-target="#results" hx-push-url="true" hx-indicator="#loading-bar" aria-invalid="false"
+           hx-include="[name='department'],[name='level'],[name='status'],[name='sort']" aria-label="Search students" class="field-input pl-10">
+  </div>
+  <select name="department" hx-get="{% url 'students:list' %}" hx-trigger="change" hx-target="#results" hx-push-url="true" hx-indicator="#loading-bar"
+          hx-include="[name='q'],[name='level'],[name='status'],[name='sort']" aria-label="Filter by department" class="field-input w-auto">
+    <option value="">All departments</option>
+    {% for department in departments %}<option value="{{ department.pk }}" {% if request.GET.department == department.pk|stringformat:"s" %}selected{% endif %}>{{ department.name }}</option>{% endfor %}
+  </select>
+  <select name="level" hx-get="{% url 'students:list' %}" hx-trigger="change" hx-target="#results" hx-push-url="true" hx-indicator="#loading-bar"
+          hx-include="[name='q'],[name='department'],[name='status'],[name='sort']" aria-label="Filter by level" class="field-input w-auto">
+    <option value="">All levels</option>
+    {% for level, label in levels %}<option value="{{ level }}" {% if request.GET.level == level|stringformat:"s" %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <select name="status" hx-get="{% url 'students:list' %}" hx-trigger="change" hx-target="#results" hx-push-url="true" hx-indicator="#loading-bar"
+          hx-include="[name='q'],[name='department'],[name='level'],[name='sort']" aria-label="Filter by status" class="field-input w-auto">
+    <option value="">All statuses</option>
+    {% for value, label in statuses %}<option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <input type="hidden" name="sort" value="{{ sort }}">
+  {% if has_filters %}<a href="{% url 'students:list' %}" class="button-ghost"><i class="ti ti-filter-off text-lg" aria-hidden="true"></i>Clear filters</a>{% endif %}
+</div>
+<p id="search-error" class="mt-3 text-sm text-danger-400" hidden>The list could not be refreshed. Try again.</p>
+<div id="results" aria-live="polite">
+  {% include "students/_table.html" %}
+</div>
+{% endblock %}

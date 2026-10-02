@@ -1,0 +1,53 @@
+{% load ui %}
+{% if page_obj.paginator.count %}
+<div class="table-wrapper">
+  <table class="data-table" data-current-sort="{{ sort }}">
+    <thead>
+      <tr>
+        {% sort_header "name" "Student" css="px-4 py-3 text-xs font-medium text-ink-400" %}
+        {% sort_header "matric_no" "Matric no" css="px-4 py-3 text-xs font-medium text-ink-400" %}
+        {% sort_header "department" "Department" css="hidden px-4 py-3 text-xs font-medium text-ink-400 md:table-cell" %}
+        {% sort_header "level" "Level" css="hidden px-4 py-3 text-xs font-medium text-ink-400 md:table-cell" %}
+        {% sort_header "status" "Status" css="px-4 py-3 text-xs font-medium text-ink-400" %}
+        <th scope="col" class="px-4 py-3 text-xs font-medium text-ink-400">CGPA</th>
+        <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-ink-400"><span class="sr-only">Actions</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in students %}
+      <tr>
+        <td>
+          <a href="{% url 'students:detail' student.pk %}" class="flex items-center gap-3 rounded-lg" title="{{ student.full_name }}">
+            {% include "ui/_avatar.html" with person=student %}
+            <span class="min-w-0">
+              <span class="block truncate max-w-[16rem] font-medium text-ink-50">{{ student.full_name }}</span>
+              <span class="block truncate max-w-[16rem] text-xs text-ink-400">{{ student.email }}</span>
+            </span>
+          </a>
+        </td>
+        <td class="font-mono text-[13px] text-ink-200">{{ student.matric_no }}</td>
+        <td class="hidden md:table-cell">{{ student.department.name }}</td>
+        <td class="hidden md:table-cell tabular-nums">{{ student.level }} level</td>
+        <td>{% include "ui/_status_badge.html" with status=student.status %}</td>
+        <td class="tabular-nums">{% if student.cgpa %}<span class="font-medium text-ink-50">{{ student.cgpa|floatformat:2 }}</span>{% else %}<span class="text-ink-600">-</span>{% endif %}</td>
+        <td class="row-actions">
+          <div class="flex justify-end gap-1">
+            <a href="{% url 'students:detail' student.pk %}" class="button-icon" aria-label="View {{ student.full_name }}" title="View {{ student.full_name }}"><i class="ti ti-eye text-lg" aria-hidden="true"></i></a>
+            <a href="{% url 'students:edit' student.pk %}" class="button-icon" aria-label="Edit {{ student.full_name }}" title="Edit {{ student.full_name }}"><i class="ti ti-pencil text-lg" aria-hidden="true"></i></a>
+            <a href="{% url 'students:delete' student.pk %}" class="button-icon hover:text-danger-400" aria-label="Delete {{ student.full_name }}" title="Delete {{ student.full_name }}"><i class="ti ti-trash text-lg" aria-hidden="true"></i></a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "ui/_pagination.html" with live=True %}
+{% if not total_students %}
+  {% include "ui/_empty_state.html" with icon="ti-users" title="No students yet" body="Add your first student to get started." action_url="/students/add/" action_label="Add student" %}
+{% endif %}
+{% elif not total_students %}
+  {% include "ui/_empty_state.html" with icon="ti-users" title="No students yet" body="Add your first student to get started." action_url="/students/add/" action_label="Add student" %}
+{% else %}
+  {% include "ui/_empty_state.html" with icon="ti-search" title="No students found" body="Try a different name or clear the filters." action_url="/students/" action_label="Clear filters" %}
+{% endif %}

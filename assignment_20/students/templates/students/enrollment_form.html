@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="{% url 'students:detail' student.pk %}" class="text-sm text-ink-400 hover:text-ink-200">Students</a>
+<span class="text-sm text-ink-600"> / </span>
+<span class="text-sm text-ink-400">{{ student.first_name }}</span>
+<h1 class="page-title mt-2">Edit enrollment</h1>
+<p class="mt-1 text-sm text-ink-400">{{ student.full_name }}, {{ student.matric_no }}</p>
+
+<form method="post" class="mt-8 max-w-xl space-y-5 rounded-xl border border-ink-700 bg-ink-900 p-6">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="error-notice">{{ form.non_field_errors.0 }}</div>{% endif %}
+  {% for field in form.visible_fields %}{% include "ui/_field.html" with field=field %}{% endfor %}
+  <div class="flex justify-end gap-3 pt-2">
+    <a href="{% url 'students:detail' student.pk %}" class="button-secondary">Cancel</a>
+    <button type="submit" class="button-primary">Save changes</button>
+  </div>
+</form>
+{% endblock %}

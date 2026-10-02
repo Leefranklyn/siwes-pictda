@@ -1,0 +1,20 @@
+{
+  "name": "student-records-theme",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {"node": ">=20"},
+  "scripts": {
+    "start": "npm run dev",
+    "build": "cross-env NODE_ENV=production postcss ./src/styles.css -o ../static/css/dist/styles.css --minify",
+    "dev": "cross-env NODE_ENV=development postcss ./src/styles.css -o ../static/css/dist/styles.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
+    "cross-env": "^10.1.0",
+    "postcss": "^8.5.15",
+    "postcss-cli": "^11.0.1",
+    "postcss-nested": "^7.0.2",
+    "postcss-simple-vars": "^7.0.1",
+    "tailwindcss": "^4.3.0"
+  }
+}

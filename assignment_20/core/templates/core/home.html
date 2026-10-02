@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Student Records{% endblock %}
+{% block content %}
+<div class="grid items-center gap-12 pt-16 pb-24 lg:grid-cols-12">
+  <div class="lg:col-span-5">
+    <h1 class="font-display text-5xl font-semibold tracking-tight text-ink-50 lg:text-6xl">Manage students, courses, and CGPA from one dashboard.</h1>
+    <p class="mt-6 max-w-md text-lg text-ink-400">Staff add and update records, enroll students in courses, and see how each department is doing. Students sign in to see their own record.</p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="{% url 'accounts:login' %}" class="button-primary">Sign in</a>
+      {% if demo_mode %}<a href="{% url 'accounts:login' %}" class="button-secondary">Try a demo account</a>{% endif %}
+    </div>
+  </div>
+  <div class="lg:col-span-7 lg:-mr-24">
+    <div class="screenshot-frame max-h-[520px]">
+      {% if shots.dashboard %}<img src="{{ shots.dashboard }}" alt="Dashboard showing student counts, charts, and recent activity" class="w-full">{% else %}<div class="aspect-[16/10] bg-ink-800"></div>{% endif %}
+    </div>
+  </div>
+</div>
+
+<section class="grid items-center gap-12 border-t border-ink-700 py-16 lg:grid-cols-2">
+  <div>
+    <h2 class="font-display text-3xl font-semibold tracking-tight text-ink-50">Find any student in seconds</h2>
+    <p class="mt-4 max-w-md text-ink-400">Search by name, email, or matric number, then narrow the list by department, level, or status. Results update as you type.</p>
+  </div>
+  <div class="screenshot-frame">
+    {% if shots.students %}<img src="{{ shots.students }}" alt="Student list with search, filters, and status badges" class="w-full">{% else %}<div class="aspect-[16/10] bg-ink-800"></div>{% endif %}
+  </div>
+</section>
+
+<section class="grid items-center gap-12 border-t border-ink-700 py-16 lg:grid-cols-2">
+  <div class="screenshot-frame">
+    {% if shots.student_detail %}<img src="{{ shots.student_detail }}" alt="Student detail page with courses and CGPA" class="w-full">{% else %}<div class="aspect-[16/10] bg-ink-800"></div>{% endif %}
+  </div>
+  <div class="lg:order-last">
+    <h2 class="font-display text-3xl font-semibold tracking-tight text-ink-50">See where each student stands</h2>
+    <p class="mt-4 max-w-md text-ink-400">Every student page shows personal details, guardians, enrolled courses, and CGPA on a 5.0 scale once grades are in.</p>
+  </div>
+</section>
+
+<section class="grid items-center gap-12 border-t border-ink-700 py-16 lg:grid-cols-2">
+  <div>
+    <h2 class="font-display text-3xl font-semibold tracking-tight text-ink-50">Know what changed and who changed it</h2>
+    <p class="mt-4 max-w-md text-ink-400">The dashboard lists recent activity, and admins get a full audit log of every create, edit, and delete.</p>
+  </div>
+  <div class="screenshot-frame">
+    {% if shots.dashboard %}<img src="{{ shots.dashboard }}" alt="Recent activity feed from the dashboard" class="h-80 w-full object-cover object-bottom">{% else %}<div class="aspect-[16/10] bg-ink-800"></div>{% endif %}
+  </div>
+</section>
+
+<section class="border-t border-ink-700 py-16">
+  <div class="max-w-3xl">
+    <h2 class="font-display text-3xl font-semibold tracking-tight text-ink-50">Who can do what</h2>
+    <p class="mt-2 text-sm text-ink-400">Three roles, each with its own access.</p>
+    <div class="table-wrapper mt-6">
+      <table class="data-table">
+        <thead><tr><th scope="col">Action</th><th scope="col">Admin</th><th scope="col">Staff</th><th scope="col">Student</th></tr></thead>
+        <tbody>
+          {% for action, admin, staff, student in permissions %}
+          <tr>
+            <td class="text-ink-50">{{ action }}</td>
+            <td>{% if admin %}<i class="ti ti-check text-azure-400" aria-hidden="true"></i><span class="sr-only">Yes</span>{% else %}<span class="text-ink-600" aria-hidden="true">-</span><span class="sr-only">No</span>{% endif %}</td>
+            <td>{% if staff %}<i class="ti ti-check text-azure-400" aria-hidden="true"></i><span class="sr-only">Yes</span>{% else %}<span class="text-ink-600" aria-hidden="true">-</span><span class="sr-only">No</span>{% endif %}</td>
+            <td>{% if student %}<i class="ti ti-check text-azure-400" aria-hidden="true"></i><span class="sr-only">Yes</span>{% else %}<span class="text-ink-600" aria-hidden="true">-</span><span class="sr-only">No</span>{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block footer %}
+<footer class="border-t border-ink-700 py-8 text-center text-sm text-ink-400">Built with Django, Tailwind CSS, and HTMX.</footer>
+{% endblock %}

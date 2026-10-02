@@ -1,0 +1,8 @@
+<div class="fixed right-4 top-4 z-50 flex w-80 max-w-[calc(100%-2rem)] flex-col gap-3" aria-live="polite">
+{% for message in messages %}
+  <div data-toast role="status" class="motion-safe:toast-enter flex items-start gap-3 rounded-xl border bg-ink-900 p-4 text-sm {% if message.tags == 'error' %}border-danger-500/50{% elif message.tags == 'warning' %}border-gold-400/40{% elif message.tags == 'success' %}border-azure-500/40{% else %}border-ink-600{% endif %}">
+    <i class="ti {% if message.tags == 'error' %}ti-alert-circle text-danger-400{% elif message.tags == 'warning' %}ti-alert-circle text-gold-400{% else %}ti-check text-azure-400{% endif %} text-lg" aria-hidden="true"></i>
+    <p class="flex-1">{{ message }}</p><button type="button" data-dismiss-toast class="button-icon -my-2 -mr-2" aria-label="Dismiss notification" title="Dismiss notification"><i class="ti ti-x" aria-hidden="true"></i></button>
+  </div>
+{% endfor %}
+</div>

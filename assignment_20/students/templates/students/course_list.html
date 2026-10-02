@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <h1 class="page-title">Courses</h1>
+  <a href="{% url 'students:course_add' %}" class="button-primary"><i class="ti ti-plus text-lg" aria-hidden="true"></i>Add course</a>
+</div>
+
+{% if courses %}
+<div class="table-wrapper mt-6">
+  <table class="data-table">
+    <thead>
+      <tr><th scope="col">Code</th><th scope="col">Title</th><th scope="col">Department</th><th scope="col">Units</th><th scope="col">Students enrolled</th><th scope="col" class="text-right"><span class="sr-only">Actions</span></th></tr>
+    </thead>
+    <tbody>
+      {% for course in courses %}
+      <tr>
+        <td class="font-mono text-[13px] text-ink-200">{{ course.code }}</td>
+        <td class="text-ink-50">{{ course.title }}</td>
+        <td>{{ course.department.name }}</td>
+        <td class="tabular-nums">{{ course.credit_units }}</td>
+        <td class="tabular-nums">{{ course.student_count }}</td>
+        <td class="row-actions"><div class="flex justify-end gap-1">
+          <a href="{% url 'students:course_edit' course.pk %}" class="button-icon" aria-label="Edit {{ course.code }}" title="Edit {{ course.code }}"><i class="ti ti-pencil text-lg" aria-hidden="true"></i></a>
+        </div></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+{% include "ui/_empty_state.html" with icon="ti-book-2" title="No courses yet" body="Add your first course to start enrolling students." action_url="/courses/add/" action_label="Add course" %}
+{% endif %}
+{% endblock %}

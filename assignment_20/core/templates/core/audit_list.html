@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="page-title">Audit log</h1>
+<form method="get" class="mt-6 flex flex-wrap items-center gap-3">
+  <select name="action" aria-label="Filter by action" class="field-input w-auto">
+    <option value="">All actions</option>
+    {% for value, label in actions %}<option value="{{ value }}" {% if request.GET.action == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <select name="model" aria-label="Filter by model" class="field-input w-auto">
+    <option value="">All records</option>
+    {% for model in models %}<option value="{{ model }}" {% if request.GET.model == model %}selected{% endif %}>{{ model }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="button-secondary">Apply</button>
+  {% if request.GET.action or request.GET.model %}<a href="{% url 'core:audit' %}" class="button-ghost"><i class="ti ti-filter-off text-lg" aria-hidden="true"></i>Clear filters</a>{% endif %}
+</form>
+
+{% if logs %}
+<div class="table-wrapper mt-6">
+  <table class="data-table">
+    <thead>
+      <tr><th scope="col">When</th><th scope="col">Who</th><th scope="col">Action</th><th scope="col">What</th></tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td class="tabular-nums" title="{{ log.created_at }}">{{ log.created_at|date:"j M Y, H:i" }}</td>
+        <td><span class="flex items-center gap-2">{% if log.actor %}{% include "ui/_avatar.html" with person=log.actor %}<span class="text-ink-50">{{ log.actor.username }}</span>{% else %}<span class="text-ink-400">Unknown</span>{% endif %}</span></td>
+        <td><i class="ti {% if log.action == 'create' %}ti-plus{% elif log.action == 'update' %}ti-pencil{% else %}ti-trash{% endif %} text-ink-400" aria-hidden="true"></i> {{ log.get_action_display }}</td>
+        <td class="text-ink-50">{{ log.summary }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "ui/_pagination.html" with noun="entries" %}
+{% else %}
+{% include "ui/_empty_state.html" with icon="ti-history" title="No activity recorded" body="Every create, edit, and delete will show up here." %}
+{% endif %}
+{% endblock %}

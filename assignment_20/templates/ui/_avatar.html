@@ -1,0 +1,6 @@
+{% load ui %}
+{% if person.photo and photo_uploads %}
+  <img src="{{ person.photo.url }}" alt="{{ person.full_name }}" class="shrink-0 rounded-full object-cover ring-1 ring-ink-700 {% if size == 'large' %}h-20 w-20{% elif size == 'preview' %}h-16 w-16{% else %}h-10 w-10{% endif %}">
+{% else %}
+  <span aria-hidden="true" class="flex shrink-0 items-center justify-center rounded-full font-semibold ring-1 ring-inset ring-ink-700 {{ person.pk|avatar_tone }} {% if size == 'large' %}h-20 w-20 text-xl{% elif size == 'preview' %}h-16 w-16 text-lg{% else %}h-10 w-10 text-sm{% endif %}">{{ person|initials }}</span>
+{% endif %}

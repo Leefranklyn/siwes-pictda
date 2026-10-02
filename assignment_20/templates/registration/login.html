@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block shell %}
+<div class="grid min-h-screen lg:grid-cols-2">
+  <div class="relative hidden overflow-hidden border-r border-ink-700 bg-ink-900 p-12 lg:flex lg:flex-col">
+    {% include "ui/_logo.html" %}
+    <p class="mt-16 max-w-md font-display text-4xl font-semibold tracking-tight text-ink-50">Sign in to manage students, courses, and grades.</p>
+    <div class="screenshot-frame mt-auto -mr-12 -mb-12 rounded-tl-xl max-w-xl">
+      {% if shots.dashboard %}<img src="{{ shots.dashboard }}" alt="Dashboard showing student counts, charts, and recent activity" class="w-full">{% else %}<div class="aspect-[16/10] bg-ink-800"></div>{% endif %}
+    </div>
+  </div>
+  <div class="flex min-h-screen items-center justify-center px-4">
+    <div class="w-full max-w-sm">
+      <div class="lg:hidden">{% include "ui/_logo.html" %}</div>
+      <h1 class="mt-8 font-display text-2xl font-semibold text-ink-50 lg:mt-0">Sign in</h1>
+      <p class="mt-1 text-sm text-ink-400">Enter your username and password.</p>
+      <form id="login-form" method="post" action="{% url 'accounts:login' %}" class="mt-6 space-y-5 rounded-xl border border-ink-700 bg-ink-900 p-6" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="rounded-lg border border-danger-500/40 bg-danger-500/10 p-3 text-sm text-danger-400">{{ form.non_field_errors.0 }}</div>{% endif %}
+        <div class="group space-y-1.5">
+          <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-ink-50">Username<span class="text-azure-400"> *</span></label>
+          {{ form.username }}
+          {% for error in form.username.errors %}<p class="flex items-center gap-1.5 text-xs text-danger-400"><i class="ti ti-alert-circle" aria-hidden="true"></i>{{ error }}</p>{% endfor %}
+        </div>
+        <div class="group space-y-1.5">
+          <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-ink-50">Password<span class="text-azure-400"> *</span></label>
+          <div class="relative">
+            {{ form.password }}
+            <button type="button" id="password-toggle" class="absolute inset-y-0 right-0 flex h-9 w-9 items-center justify-center self-center rounded-lg text-ink-400 hover:text-ink-50" aria-label="Show password" title="Show password" aria-pressed="false"><i class="ti ti-eye text-lg" aria-hidden="true"></i></button>
+          </div>
+          {% for error in form.password.errors %}<p class="flex items-center gap-1.5 text-xs text-danger-400"><i class="ti ti-alert-circle" aria-hidden="true"></i>{{ error }}</p>{% endfor %}
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="button-primary w-full">Sign in</button>
+      </form>
+      {% if demo_accounts %}
+      {{ demo_accounts|json_script:"demo-accounts" }}
+      <p class="mt-6 text-sm text-ink-400">Demo mode is on. Pick a role to fill in its login.</p>
+      <div class="mt-3 flex flex-wrap gap-2">
+        {% for account in demo_accounts %}<button type="button" data-demo-role="{{ account.role }}" class="rounded-lg border border-ink-600 px-3 py-1.5 text-xs font-medium text-ink-200 hover:bg-ink-800">{{ account.role }}</button>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% load ui %}
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 hidden w-64 flex-col border-r border-ink-700 bg-ink-900 lg:flex" aria-label="Main navigation">
+  <div class="flex h-20 items-center justify-between px-5">{% include "ui/_logo.html" %}<button id="drawer-close" class="button-icon lg:hidden" aria-label="Close navigation" title="Close navigation"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+  <nav class="flex-1 space-y-1 px-3 py-4" aria-label="Main">
+    <a href="{% url 'core:dashboard' %}" class="nav-link {% if request.path == '/dashboard/' %}nav-active{% endif %}" {% if request.path == '/dashboard/' %}aria-current="page"{% endif %}><i class="ti ti-layout-dashboard text-xl" aria-hidden="true"></i>Dashboard</a>
+    <a href="{% url 'students:list' %}" class="nav-link {% if '/students/' in request.path %}nav-active{% endif %}" {% if '/students/' in request.path %}aria-current="page"{% endif %}><i class="ti ti-users text-xl" aria-hidden="true"></i>Students</a>
+    {% if role == 'admin' %}
+      <a href="{% url 'students:courses' %}" class="nav-link {% if '/courses/' in request.path %}nav-active{% endif %}" {% if '/courses/' in request.path %}aria-current="page"{% endif %}><i class="ti ti-book-2 text-xl" aria-hidden="true"></i>Courses</a>
+      <a href="{% url 'core:audit' %}" class="nav-link {% if request.path == '/audit/' %}nav-active{% endif %}" {% if request.path == '/audit/' %}aria-current="page"{% endif %}><i class="ti ti-history text-xl" aria-hidden="true"></i>Audit log</a>
+      <a href="{% url 'admin:index' %}" class="nav-link"><i class="ti ti-shield-lock text-xl" aria-hidden="true"></i>Admin panel</a>
+    {% endif %}
+  </nav>
+  <div class="flex items-center gap-3 border-t border-ink-700 p-4">
+    {% include "ui/_avatar.html" with person=user %}
+    <div class="min-w-0 flex-1"><p class="truncate text-sm font-medium text-ink-50">{{ user.get_full_name|default:user.username }}</p><p class="text-xs text-ink-400">{{ role|capfirst }}</p></div>
+    <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="button-icon" aria-label="Log out" title="Log out"><i class="ti ti-logout text-xl" aria-hidden="true"></i></button></form>
+  </div>
+</aside>
