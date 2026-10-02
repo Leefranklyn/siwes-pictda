@@ -1,0 +1,7 @@
+[run]
+source = students,accounts,core
+omit = */migrations/*,*/tests/*
+
+[report]
+show_missing = True
+fail_under = 80
