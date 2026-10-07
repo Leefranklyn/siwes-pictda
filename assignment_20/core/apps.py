@@ -6,6 +6,5 @@ class CoreConfig(AppConfig):
     name = "core"
 
     def ready(self):
-        from .signals import connect_audit_signals
-
-        connect_audit_signals()
+        # Importing connects the audit receivers in core.signals.
+        from . import signals  # noqa: F401

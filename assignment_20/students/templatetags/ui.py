@@ -3,12 +3,11 @@ from django import template
 
 register = template.Library()
 BADGES = {
-    "active": "bg-azure-500/10 text-azure-300 ring-azure-500/30",
-    "graduated": "bg-gold-400/10 text-gold-300 ring-gold-400/30",
-    "suspended": "bg-lavender-400/10 text-lavender-300 ring-lavender-400/30",
-    "withdrawn": "bg-ink-700/60 text-ink-200 ring-ink-600",
+    "active": "chip chip-active",
+    "graduated": "chip chip-graduated",
+    "suspended": "chip chip-suspended",
+    "withdrawn": "chip chip-withdrawn",
 }
-TONES = ["bg-azure-500/15 text-azure-300", "bg-lavender-400/15 text-lavender-300", "bg-gold-400/15 text-gold-300"]
 
 
 @register.filter
@@ -17,8 +16,18 @@ def badge_classes(status):
 
 
 @register.filter
+def split(value, separator=","):
+    return value.split(separator)
+
+
+@register.filter
+def lookup(mapping, key):
+    return mapping.get(key, 0) if mapping else 0
+
+
+@register.filter
 def avatar_tone(pk):
-    return TONES[int(pk or 0) % 3]
+    return ""
 
 
 @register.filter
@@ -34,7 +43,8 @@ def query_string(request, **kwargs):
             params.pop(key, None)
         else:
             params[key] = value
-    return params.urlencode()
+    # Always return a "?..." form so htmx treats it as a query string, not a path.
+    return "?" + params.urlencode()
 
 
 @register.simple_tag

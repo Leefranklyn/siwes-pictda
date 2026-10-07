@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-wrap items-end justify-between gap-4">
+  {% include "ui/_page_header.html" with number="04" title="Departments" description="Academic departments and their counts." %}
+  <a href="{% url 'students:department_add' %}" class="button-primary"><i class="ti ti-plus text-lg" aria-hidden="true"></i>Add department</a>
+</div>
+{% if departments %}
+<div class="mt-8 max-w-3xl">
+  {% for department in departments %}
+  <div class="folder" data-id="DEP-{{ forloop.counter|stringformat:'02d' }}">
+    <div class="grow">
+      <b class="block font-display text-lg font-semibold text-fg">{{ department.name }}</b>
+      <small class="font-mono text-[13px] text-mute">{{ department.student_count }} students, {{ department.course_count }} courses, {{ department.lecturer_count }} lecturers</small>
+    </div>
+    <div class="flex gap-1">
+      <a href="{% url 'students:department_edit' department.pk %}" class="button-icon" aria-label="Edit {{ department.name }}" title="Edit {{ department.name }}"><i class="ti ti-pencil text-lg" aria-hidden="true"></i></a>
+      <a href="{% url 'students:department_delete' department.pk %}" class="button-icon hover:text-danger" aria-label="Delete {{ department.name }}" title="Delete {{ department.name }}"><i class="ti ti-trash text-lg" aria-hidden="true"></i></a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+{% include "ui/_empty_state.html" with icon="ti-building" title="No departments yet" body="Add your first department to start organizing courses." action_url="/departments/add/" action_label="Add department" %}
+{% endif %}
+{% endblock %}

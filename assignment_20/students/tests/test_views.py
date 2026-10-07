@@ -1,7 +1,10 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from students.tests.test_models import Department, enroll, make_course, make_student
+from students.models import Guardian, Student
+from students.tests.helpers import (
+    Department, enroll, make_admin_user, make_course, make_staff_user, make_student,
+)
 
 
 class StudentListViewTests(TestCase):
@@ -77,7 +80,6 @@ class StudentCrudTests(TestCase):
 
     def test_create_redirects_and_flashes(self):
         response = self.client.post("/students/add/", self.valid_data(), follow=True)
-        from students.models import Student
         student = Student.objects.get(matric_no="VUG/CSC/24/10001")
         self.assertRedirects(response, student.get_absolute_url())
         self.assertContains(response, "Student added.")
@@ -89,7 +91,6 @@ class StudentCrudTests(TestCase):
                "guardians-0-phone": "+2348023456789", "guardians-0-email": ""}
         )
         self.client.post("/students/add/", data)
-        from students.models import Guardian
         self.assertEqual(Guardian.objects.count(), 1)
 
     def test_create_rejects_duplicates_and_bad_phone_and_future_dob(self):
@@ -103,7 +104,6 @@ class StudentCrudTests(TestCase):
         self.assertContains(response, "cannot be in the future", status_code=200)
 
     def test_update(self):
-        from students.models import Student
         student = make_student()
         response = self.client.post(f"/students/{student.pk}/edit/", self.valid_data(first_name="Adaeze"))
         self.assertRedirects(response, student.get_absolute_url())
@@ -111,7 +111,6 @@ class StudentCrudTests(TestCase):
         self.assertEqual(student.first_name, "Adaeze")
 
     def test_delete(self):
-        from students.models import Student
         student = make_student()
         response = self.client.get(f"/students/{student.pk}/delete/")
         self.assertContains(response, "Delete this student?")
@@ -157,26 +156,13 @@ class CourseViewTests(TestCase):
     def test_list_and_create(self):
         response = self.client.get("/courses/")
         self.assertContains(response, "CSC101")
-        response = self.client.post("/courses/add/", {"code": "csc102", "title": "New course", "credit_units": 3, "department": self.course.department.pk})
+        # V2: courses also need a level and semester.
+        response = self.client.post("/courses/add/", {"code": "csc102", "title": "New course", "credit_units": 3, "department": self.course.department.pk, "level": "200", "semester": "first"})
         self.assertRedirects(response, "/courses/")
         self.assertTrue(self.course.__class__.objects.filter(code="CSC102").exists())
 
     def test_edit(self):
-        response = self.client.post(f"/courses/{self.course.pk}/edit/", {"code": "CSC101", "title": "Updated", "credit_units": 4, "department": self.course.department.pk})
+        response = self.client.post(f"/courses/{self.course.pk}/edit/", {"code": "CSC101", "title": "Updated", "credit_units": 4, "department": self.course.department.pk, "level": "200", "semester": "first"})
         self.assertRedirects(response, "/courses/")
         self.course.refresh_from_db()
         self.assertEqual(self.course.credit_units, 4)
-
-
-def make_staff_user():
-    from django.contrib.auth.models import Group, User
-    user = User.objects.create_user("staff_user", password="testpass123")
-    Group.objects.get_or_create(name="Staff")[0].user_set.add(user)
-    return user
-
-
-def make_admin_user():
-    from django.contrib.auth.models import Group, User
-    user = User.objects.create_user("admin_user", password="testpass123")
-    Group.objects.get_or_create(name="Admin")[0].user_set.add(user)
-    return user

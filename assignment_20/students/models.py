@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models.functions import Lower
 from django.urls import reverse
@@ -22,6 +22,34 @@ class Department(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Lecturer(models.Model):
+    TITLES = [("Mr", "Mr"), ("Mrs", "Mrs"), ("Ms", "Ms"), ("Dr", "Dr"), ("Prof", "Prof"), ("Engr", "Engr")]
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="lecturer")
+    staff_number = models.CharField(max_length=30, validators=[RegexValidator(r"^[A-Z]+/[A-Z]+/\d{3}$", "Use the format LEC/CSC/001.")])
+    title = models.CharField(max_length=10, choices=TITLES)
+    department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name="lecturers")
+    phone = models.CharField(max_length=20, blank=True, validators=[phone_validator])
+
+    class Meta:
+        ordering = ["staff_number"]
+        constraints = [models.UniqueConstraint(Lower("staff_number"), name="uniq_lecturer_staff_ci")]
+
+    def clean(self):
+        super().clean()
+        self.staff_number = self.staff_number.strip().upper()
+
+    def save(self, *args, **kwargs):
+        self.staff_number = self.staff_number.strip().upper()
+        super().save(*args, **kwargs)
+
+    @property
+    def full_name(self):
+        return f"{self.title} {self.user.first_name} {self.user.last_name}".strip()
+
+    def __str__(self):
+        return f"{self.title} {self.user.last_name}".strip()
 
 
 class Student(models.Model):
@@ -110,14 +138,28 @@ class Guardian(models.Model):
 class Course(models.Model):
     code = models.CharField(max_length=20, unique=True)
     title = models.CharField(max_length=150)
-    credit_units = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
+    credit_units = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(6)])
     department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name="courses")
+    level = models.PositiveSmallIntegerField(choices=Student.LEVELS, default=100)
+    semester = models.CharField(max_length=6, choices=[("first", "First"), ("second", "Second")], default="first")
+    lecturers = models.ManyToManyField(Lecturer, blank=True, related_name="courses")
 
     class Meta:
         ordering = ["code"]
+        indexes = [models.Index(fields=["department", "level"])]
 
     def __str__(self):
         return f"{self.code}: {self.title}"
+
+    @classmethod
+    def curriculum_for(cls, student):
+        """Courses that belong in a student's curriculum: same department and level."""
+        return cls.objects.filter(department=student.department, level=student.level)
+
+    @property
+    def students_matching(self):
+        """Active students whose department and level match the course."""
+        return Student.objects.filter(department=self.department, level=self.level, status="active")
 
 
 class Enrollment(models.Model):
@@ -127,11 +169,17 @@ class Enrollment(models.Model):
     session = models.CharField(max_length=9, validators=[RegexValidator(r"^[0-9]{4}/[0-9]{4}$", "Use the format 2025/2026.")])
     semester = models.CharField(max_length=6, choices=[("first", "First"), ("second", "Second")])
     grade = models.CharField(max_length=1, choices=[(grade, grade) for grade in GRADE_POINTS], null=True, blank=True)
+    graded_at = models.DateTimeField(null=True, blank=True)
+    graded_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-session", "course__code"]
         constraints = [models.UniqueConstraint(fields=["student", "course", "session"], name="uniq_student_course_session")]
+
+    @property
+    def grade_points(self):
+        return self.GRADE_POINTS.get(self.grade)
 
     def __str__(self):
         return f"{self.student.matric_no}, {self.course.code}, {self.session}"

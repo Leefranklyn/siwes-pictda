@@ -1,0 +1,5 @@
+first_name,last_name,email,matric_no,department,level,dob,gender,phone
+Ada,Obi,ada.obi@example.com,VUG/CSC/24/30001,Computer Science,200,2005-05-12,female,+2348012345701
+Ada,Obi,ada.obi@example.com,VUG/CSC/24/30002,Computer Science,200,2005-05-12,female,+2348012345702
+Musa,Danjuma,musa.danjuma@example.com,VUG/CSC/24X/30003,Computer Science,200,2099-01-01,male,080-abc
+Yusuf,Sadiq,,VUG/CSC/24/30004,History,700,2005-08-08,male,+2348012345704

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "ui/_breadcrumb.html" with items=course_breadcrumb %}
+<div class="mt-4 flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
+  <div>
+    <h1 class="page-title">Grade sheet <span class="font-mono text-2xl">{{ course.code }}</span></h1>
+    <p class="desc mt-2">{{ course.title }}, {{ session }}</p>
+  </div>
+  <div class="flex items-center gap-3">
+    <p id="graded-counter" class="meta tabular-nums">{{ graded_count }} of {{ roster|length }} graded</p>
+    <div class="relative">
+      <form method="get"><label for="session-select" class="sr-only">Session</label>
+        <select id="session-select" name="session" class="select-field w-40" data-autosubmit>
+          {% for option in sessions %}<option value="{{ option }}" {% if option == session %}selected{% endif %}>{{ option }}</option>{% endfor %}
+        </select></form>
+      <i class="ti ti-chevron-down pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-mute" aria-hidden="true"></i>
+    </div>
+  </div>
+</div>
+
+{% if roster %}
+<form method="post" id="grade-form" data-graded-count="{{ graded_count }}">
+  {% csrf_token %}
+  <div class="table-wrapper mt-8">
+    <table class="data-table grade-sheet">
+      <thead><tr><th scope="col">Student</th><th scope="col">Matric no</th><th scope="col" class="text-right">Grade</th></tr></thead>
+      <tbody>
+        {% for enrollment in roster %}
+        <tr data-grade-row>
+          <td>
+            <div class="flex items-center gap-3">
+              {% include "ui/_avatar.html" with person=enrollment.student %}
+              <span class="text-fg">{{ enrollment.student.full_name }}</span>
+            </div>
+          </td>
+          <td class="font-mono text-[13px] text-fg">{{ enrollment.student.matric_no }}</td>
+          <td class="text-right">
+            {% with pk=enrollment.pk|stringformat:"s" %}
+            {% include "ui/_grade_radio.html" with name="grade_"|add:pk grade=enrollment.grade %}
+            {% endwith %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="sticky bottom-0 -mx-4 flex items-center justify-between gap-3 border-t border-line bg-bg px-4 py-4 sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10">
+    <a href="{% url 'students:course_detail' course.pk %}?session={{ session }}" class="button-ghost">Cancel</a>
+    <button type="submit" class="button-primary">Save grades</button>
+  </div>
+</form>
+{% else %}
+{% include "ui/_empty_state.html" with icon="ti-users-group" title="No students enrolled" body="Enroll students for this session first." action_url="/students/" action_label="Back to course" %}
+{% endif %}
+{% endblock %}

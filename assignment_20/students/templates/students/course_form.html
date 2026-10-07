@@ -1,29 +1,105 @@
 {% extends "base.html" %}
 {% block content %}
-<a href="{% url 'students:courses' %}" class="text-sm text-ink-400 hover:text-ink-200">Courses</a>
-<span class="text-sm text-ink-600"> / </span>
-<span class="text-sm text-ink-400">{{ page_title }}</span>
-<h1 class="page-title mt-2">{{ page_title }}</h1>
+<p class="meta"><a href="{% url 'students:courses' %}" class="hover:text-fg">Courses</a><span class="mx-1.5 text-faint">/</span><span class="text-fg">{{ page_title }}</span></p>
+<h1 class="page-title mt-3">{{ page_title }}</h1>
 
 {% if form.errors %}<div class="error-notice mt-6" role="alert">Fix the highlighted fields and save again.</div>{% endif %}
 
 <form method="post" class="pb-4">
   {% csrf_token %}
-  <section class="form-section border-t">
+
+  <section class="form-section">
     <div>
-      <h2 class="font-display text-base font-semibold text-ink-50">Course details</h2>
-      <p class="mt-1 text-sm text-ink-400">Code, title, and credit units</p>
+      <div class="section-no">01</div>
+      <h2 class="section-title mt-3">Course details</h2>
+      <p class="desc mt-2">Code, title, and credit units</p>
     </div>
     <div class="grid gap-5 sm:grid-cols-2 lg:col-span-2">
       {% include "ui/_field.html" with field=form.code %}
       {% include "ui/_field.html" with field=form.title %}
       {% include "ui/_field.html" with field=form.credit_units %}
-      {% include "ui/_field.html" with field=form.department %}
     </div>
   </section>
-  <div class="sticky bottom-0 -mx-4 flex items-center justify-end gap-3 border-t border-ink-700 bg-ink-950 px-4 py-4 sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10">
+
+  <section class="form-section">
+    <div>
+      <div class="section-no">02</div>
+      <h2 class="section-title mt-3">Placement</h2>
+      <p class="desc mt-2">Students in this department and level will see this course in their curriculum.</p>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:col-span-2">
+      {% include "ui/_field.html" with field=form.department %}
+      {% include "ui/_field.html" with field=form.level %}
+      {% include "ui/_field.html" with field=form.semester %}
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div>
+      <div class="section-no">03</div>
+      <h2 class="section-title mt-3">Lecturers</h2>
+      <p class="desc mt-2">At least one is recommended but not required. Lecturers from other departments are allowed.</p>
+    </div>
+    <div class="lg:col-span-2" id="lecturer-picker">
+      <div class="flex flex-wrap gap-2" id="lecturer-chips"></div>
+      <div class="relative mt-3">
+        <i class="ti ti-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-mute" aria-hidden="true"></i>
+        <input type="search" id="lecturer-filter" placeholder="Filter lecturers by name, department, or staff number" aria-label="Filter lecturers" class="field-input pl-10">
+      </div>
+      <div class="mt-3 max-h-64 space-y-1 overflow-y-auto border border-line-strong bg-surface p-2">
+        {% for choice in form.lecturers %}
+        <label class="lecturer-row flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-surface-2 has-[:checked]:bg-surface-2" data-lecturer-row>
+          {{ choice.tag }}
+          <span class="text-sm text-fg">{{ choice.choice_label }}</span>
+        </label>
+        {% endfor %}
+        {% if not form.lecturers %}<p class="px-3 py-2 text-sm text-mute">No lecturers yet. Add them from Accounts first.</p>{% endif %}
+      </div>
+      {% for error in form.lecturers.errors %}<p class="mt-2 text-sm text-danger">{{ error }}</p>{% endfor %}
+    </div>
+  </section>
+
+  <div class="sticky bottom-0 -mx-4 flex items-center justify-end gap-3 border-t border-line bg-bg px-4 py-4 sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10">
     <a href="{% url 'students:courses' %}" class="button-secondary">Cancel</a>
     <button type="submit" class="button-primary">{% if object.pk %}Save changes{% else %}Add course{% endif %}</button>
   </div>
 </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Lecturer picker: filter the checklist and show selected lecturers as chips.
+  const picker = document.getElementById('lecturer-picker');
+  if (picker) {
+    const filter = document.getElementById('lecturer-filter');
+    const chips = document.getElementById('lecturer-chips');
+    const rows = picker.querySelectorAll('[data-lecturer-row]');
+    const renderChips = () => {
+      chips.innerHTML = '';
+      picker.querySelectorAll('input[type=checkbox]:checked').forEach(input => {
+        const label = input.closest('[data-lecturer-row]').querySelector('span').textContent.trim();
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.textContent = label;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.setAttribute('aria-label', 'Remove ' + label);
+        remove.innerHTML = '<i class="ti ti-x text-sm" aria-hidden="true"></i>';
+        remove.addEventListener('click', () => { input.checked = false; renderChips(); });
+        chip.appendChild(remove);
+        chips.appendChild(chip);
+      });
+    };
+    picker.addEventListener('change', event => {
+      if (event.target.type === 'checkbox') renderChips();
+    });
+    filter.addEventListener('input', () => {
+      const query = filter.value.toLowerCase();
+      rows.forEach(row => {
+        row.hidden = query && !row.textContent.toLowerCase().includes(query);
+      });
+    });
+    renderChips();
+  }
+</script>
 {% endblock %}

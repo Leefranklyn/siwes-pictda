@@ -1,0 +1,11 @@
+first_name,last_name,email,matric_no,department,level,dob,gender,phone,address,status,enrolled_on,guardian_name,guardian_relationship,guardian_phone,guardian_email
+Fatima,Abubakar,fatima.abubakar@example.com,VUG/CSC/24/20001,Computer Science,200,2005-03-14,female,+2348012345601,14 Ahmadu Bello Way, Zaria,active,2025-09-20,Halima Abubakar,Mother,+2348012345611,halima@example.com
+Nnamdi,Obi,nnamdi.obi@example.com,VUG/CSC/24/20002,Computer Science,200,2005-07-02,male,+2348012345602,,active,2025-09-20,Chidi Obi,Father,+2348012345612,
+Amina,Bello,amina.bello@example.com,VUG/ITE/24/20003,Information Technology,200,17/04/2005,female,+2348012345603,Active,2025-09-21,Sani Bello,Uncle,+2348012345613,
+Tunde,Adeyemi,tunde.adeyemi@example.com,VUG/SEN/24/20004,Software Engineering,200,2005-11-30,male,+2348012345604,,active,2025-09-21,Bola Adeyemi,Mother,+2348012345614,
+Chiamaka,Eze,chiamaka.eze@example.com,VUG/CYS/24/20005,Cyber Security,200,2005-01-25,female,+2348012345605,,active,2025-09-22,,
+Segun,Olawale,segun.olawale@example.com,VUG/CSC/24/20006,Computer Science,200,2004-12-01,male,+2348012345606,,active,2025-09-22,Femi Olawale,Father,+2348012345616,
+Zainab,Aliyu,zainab.aliyu@example.com,VUG/ITE/24/20007,Information Technology,200,2005-06-18,female,+2348012345607,,active,2025-09-23,Hauwa Aliyu,Aunt,+2348012345617,
+Emeka,Nwosu,emeka.nwosu@example.com,VUG/SEN/24/20008,Software Engineering,200,2005-09-09,male,+2348012345608,,active,2025-09-23,,
+Amara,Umeh,amara.umeh@example.com,VUG/CYS/24/20009,Cyber Security,200,2005-02-27,female,+2348012345609,,active,2025-09-24,Obi Umeh,Father,+2348012345619,
+Ifeanyi,Lawal,ifeanyi.lawal@example.com,VUG/CSC/24/20010,Computer Science,200,2005-05-05,male,+2348012345610,,active,2025-09-24,Rukayat Lawal,Mother,+2348012345620,

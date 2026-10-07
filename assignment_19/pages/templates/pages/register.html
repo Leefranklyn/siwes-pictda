@@ -1,0 +1,38 @@
+{# Register page: student registration form. #}
+{% extends 'pages/base.html' %}
+
+{% block title %}Register | StudentHub{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div class="container">
+        <h1>Student Registration</h1>
+        <p>Fill in your details to join the roster. All fields are required.</p>
+    </div>
+</section>
+
+<section class="section" style="padding-top: 0;">
+    <div class="container">
+        <div class="card form-panel">
+            {% if submitted %}
+            <div class="success">Registration successful — you've been added to the <a href="{% url 'students' %}">students roster</a>.</div>
+            {% endif %}
+
+            <form method="post" action="{% url 'register' %}" class="form-grid" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="field">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+                {% endfor %}
+                <div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </div>
+            </form>
+            <p class="form-note">Already registered? See the <a href="{% url 'students' %}">students roster</a>.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,12 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-<a href="{% url 'students:detail' student.pk %}" class="text-sm text-ink-400 hover:text-ink-200">Students</a>
-<span class="text-sm text-ink-600"> / </span>
-<span class="text-sm text-ink-400">{{ student.first_name }}</span>
-<h1 class="page-title mt-2">Edit enrollment</h1>
-<p class="mt-1 text-sm text-ink-400">{{ student.full_name }}, {{ student.matric_no }}</p>
+<p class="meta"><a href="{% url 'students:detail' student.pk %}" class="hover:text-fg">Students</a><span class="mx-1.5 text-faint">/</span><span class="text-fg">{{ student.first_name }}</span></p>
+<h1 class="page-title mt-3">Edit enrollment</h1>
+<p class="desc mt-2">{{ student.full_name }}, {{ student.matric_no }}</p>
 
-<form method="post" class="mt-8 max-w-xl space-y-5 rounded-xl border border-ink-700 bg-ink-900 p-6">
+<form method="post" class="card mt-8 max-w-xl space-y-5">
   {% csrf_token %}
   {% if form.non_field_errors %}<div class="error-notice">{{ form.non_field_errors.0 }}</div>{% endif %}
   {% for field in form.visible_fields %}{% include "ui/_field.html" with field=field %}{% endfor %}

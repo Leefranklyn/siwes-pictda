@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "ui/_page_header.html" with number="03" title="My courses" description="The courses you teach this session." %}
+<div class="flex items-center gap-3">
+  <div class="relative">
+    <form method="get"><label for="session-select" class="sr-only">Session</label>
+      <select id="session-select" name="session" class="select-field w-40" data-autosubmit>
+        {% for option in sessions %}<option value="{{ option }}" {% if option == session %}selected{% endif %}>{{ option }}</option>{% endfor %}
+      </select></form>
+    <i class="ti ti-chevron-down pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-mute" aria-hidden="true"></i>
+  </div>
+</div>
+
+{% if rows %}
+<div class="table-wrapper mt-8">
+  <table class="data-table">
+    <thead><tr><th scope="col">Course</th><th scope="col" class="hidden md:table-cell">Level</th><th scope="col" class="hidden md:table-cell">Semester</th><th scope="col">Students</th><th scope="col">Graded</th><th scope="col" class="text-right"><span class="sr-only">Grade sheet</span></th></tr></thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td><span class="font-mono text-[13px] text-fg">{{ row.course.code }}</span><span class="block text-xs text-mute">{{ row.course.title }}</span></td>
+        <td class="hidden md:table-cell tabular-nums">{{ row.course.level }} level</td>
+        <td class="hidden md:table-cell">{{ row.course.get_semester_display }}</td>
+        <td class="tabular-nums">{{ row.students }}</td>
+        <td>
+          <div class="flex items-center gap-3">
+            <div class="h-1.5 w-24 overflow-hidden bg-line" role="presentation"><div class="h-full bg-accent-ink" style="width: {{ row.percent }}%"></div></div>
+            <span class="text-sm tabular-nums text-mute">{{ row.graded }}</span>
+          </div>
+        </td>
+        <td class="text-right"><a href="{% url 'students:grade_sheet' row.course.pk %}?session={{ session }}" class="button-secondary px-3 py-1">Grade sheet</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+{% include "ui/_empty_state.html" with icon="ti-book-2" title="No courses yet" body="You are not assigned to any courses. Ask an administrator to assign you." %}
+{% endif %}
+{% endblock %}

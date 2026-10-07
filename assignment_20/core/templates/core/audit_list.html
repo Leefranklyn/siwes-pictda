@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="page-title">Audit log</h1>
+{% include "ui/_page_header.html" with number="06" title="Audit log" %}
 <form method="get" class="mt-6 flex flex-wrap items-center gap-3">
   <select name="action" aria-label="Filter by action" class="field-input w-auto">
     <option value="">All actions</option>
@@ -23,10 +23,10 @@
     <tbody>
       {% for log in logs %}
       <tr>
-        <td class="tabular-nums" title="{{ log.created_at }}">{{ log.created_at|date:"j M Y, H:i" }}</td>
-        <td><span class="flex items-center gap-2">{% if log.actor %}{% include "ui/_avatar.html" with person=log.actor %}<span class="text-ink-50">{{ log.actor.username }}</span>{% else %}<span class="text-ink-400">Unknown</span>{% endif %}</span></td>
-        <td><i class="ti {% if log.action == 'create' %}ti-plus{% elif log.action == 'update' %}ti-pencil{% else %}ti-trash{% endif %} text-ink-400" aria-hidden="true"></i> {{ log.get_action_display }}</td>
-        <td class="text-ink-50">{{ log.summary }}</td>
+        <td class="font-mono text-[13px] tabular-nums" title="{{ log.created_at }}">{{ log.created_at|date:"j M Y, H:i" }}</td>
+        <td><span class="flex items-center gap-2">{% if log.actor %}{% include "ui/_avatar.html" with person=log.actor %}<span class="text-fg">{{ log.actor.username }}</span>{% else %}<span class="text-mute">Unknown</span>{% endif %}</span></td>
+        <td><i class="ti {% if log.action == 'create' %}ti-plus{% elif log.action == 'update' %}ti-pencil{% else %}ti-trash{% endif %} text-mute" aria-hidden="true"></i> {{ log.get_action_display }}</td>
+        <td class="text-fg">{{ log.summary }}</td>
       </tr>
       {% endfor %}
     </tbody>

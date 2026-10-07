@@ -3,6 +3,7 @@ from pathlib import Path
 from django.conf import settings
 
 from accounts.roles import user_role
+from students.utils import current_session
 
 SHOT_NAMES = ("dashboard", "students", "student-detail")
 
@@ -23,4 +24,7 @@ def app_context(request):
         "demo_accounts": settings.DEMO_ACCOUNTS if settings.DEMO_MODE else [],
         "photo_uploads": settings.PHOTO_UPLOADS,
         "shots": shot_files(),
+        "email_configured": bool(settings.EMAIL_HOST),
+        "institution": settings.INSTITUTION_NAME,
+        "current_session": current_session(),
     }

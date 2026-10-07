@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "ui/_page_header.html" with number="02" title="Import history" %}
+{% if batches %}
+<div class="table-wrapper mt-8">
+  <table class="data-table">
+    <thead><tr><th scope="col">When</th><th scope="col">By</th><th scope="col">File</th><th scope="col">Kind</th><th scope="col">Rows</th><th scope="col">Created</th><th scope="col">Skipped</th><th scope="col">Status</th></tr></thead>
+    <tbody>
+      {% for batch in batches %}
+      <tr>
+        <td class="tabular-nums">{{ batch.created_at|date:"j M Y H:i" }}</td>
+        <td>{{ batch.uploaded_by|default:"-" }}</td>
+        <td class="max-w-[16rem] truncate">{{ batch.filename }}</td>
+        <td>{{ batch.get_kind_display }}</td>
+        <td class="tabular-nums">{{ batch.summary.total|default:0 }}</td>
+        <td class="tabular-nums">{{ batch.summary.created|default:0 }}</td>
+        <td class="tabular-nums">{{ batch.summary.invalid|default:0 }}</td>
+        <td>{% include "ui/_status_badge.html" with status=batch.status %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+{% include "ui/_empty_state.html" with icon="ti-file-import" title="No imports yet" body="Import a students CSV to see its history here." action_url="/students/import/" action_label="Import students" %}
+{% endif %}
+{% endblock %}

@@ -11,7 +11,7 @@ class SeedDemoTests(TestCase):
         for _ in range(2):
             out = StringIO()
             call_command("seed_demo", stdout=out)
-        self.assertEqual(Student.objects.count(), 31)
+        self.assertEqual(Student.objects.count(), 61)
         graded = [student for student in Student.objects.all() if student.cgpa is not None]
         self.assertTrue(len(graded) >= 2)
         self.assertTrue(any(student.full_name == "Adaeze Okafor" for student in graded))

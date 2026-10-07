@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-<a href="{% url 'students:list' %}" class="text-sm text-ink-400 hover:text-ink-200">Students</a>
-<span class="text-sm text-ink-600"> / </span>
-<span class="text-sm text-ink-400">{{ page_title }}</span>
-<h1 class="page-title mt-2">{{ page_title }}</h1>
+<p class="meta"><a href="{% url 'students:list' %}" class="hover:text-fg">Students</a><span class="mx-1.5 text-faint">/</span><span class="text-fg">{{ page_title }}</span></p>
+<h1 class="page-title mt-3">{{ page_title }}</h1>
 
 {% if form.errors %}
 <div class="error-notice mt-6" role="alert">Fix the highlighted fields and save again.</div>
@@ -15,8 +13,9 @@
 
   <section class="form-section">
     <div>
-      <h2 class="font-display text-base font-semibold text-ink-50">Personal details</h2>
-      <p class="mt-1 text-sm text-ink-400">Name, birth date, photo</p>
+      <div class="section-no">01</div>
+      <h2 class="section-title mt-3">Personal details</h2>
+      <p class="desc mt-2">Name, birth date, photo</p>
     </div>
     <div class="grid gap-5 sm:grid-cols-2 lg:col-span-2">
       {% include "ui/_field.html" with field=form.first_name %}
@@ -25,7 +24,7 @@
       {% include "ui/_field.html" with field=form.gender %}
       {% if form.photo %}
       <div class="flex items-end gap-4 sm:col-span-2">
-        {% if object.pk %}{% include "ui/_avatar.html" with person=object size="preview" %}{% else %}<span id="photo-preview" class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-lg font-semibold ring-1 ring-inset ring-ink-700 bg-azure-500/15 text-azure-300">?</span>{% endif %}
+        {% if object.pk %}{% include "ui/_avatar.html" with person=object size="preview" %}{% else %}<span id="photo-preview" class="grid h-16 w-16 shrink-0 place-items-center border border-line bg-surface-2 font-mono text-lg text-fg">?</span>{% endif %}
         <div class="flex-1">{% include "ui/_field.html" with field=form.photo %}</div>
       </div>
       {% endif %}
@@ -34,8 +33,9 @@
 
   <section class="form-section">
     <div>
-      <h2 class="font-display text-base font-semibold text-ink-50">Contact</h2>
-      <p class="mt-1 text-sm text-ink-400">How to reach them</p>
+      <div class="section-no">02</div>
+      <h2 class="section-title mt-3">Contact</h2>
+      <p class="desc mt-2">How to reach them</p>
     </div>
     <div class="grid gap-5 sm:grid-cols-2 lg:col-span-2">
       {% include "ui/_field.html" with field=form.email %}
@@ -46,8 +46,9 @@
 
   <section class="form-section">
     <div>
-      <h2 class="font-display text-base font-semibold text-ink-50">Academic</h2>
-      <p class="mt-1 text-sm text-ink-400">Where they sit</p>
+      <div class="section-no">03</div>
+      <h2 class="section-title mt-3">Academic</h2>
+      <p class="desc mt-2">Where they sit</p>
     </div>
     <div class="grid gap-5 sm:grid-cols-2 lg:col-span-2">
       {% include "ui/_field.html" with field=form.matric_no %}
@@ -60,12 +61,13 @@
 
   <section class="form-section">
     <div>
-      <h2 class="font-display text-base font-semibold text-ink-50">Guardians</h2>
-      <p class="mt-1 text-sm text-ink-400">At least one contact</p>
+      <div class="section-no">04</div>
+      <h2 class="section-title mt-3">Guardians</h2>
+      <p class="desc mt-2">At least one contact</p>
     </div>
     <div class="lg:col-span-2" id="guardian-rows">
       {% for guardian_form in guardians %}
-      <div class="guardian-row grid gap-5 border-t border-ink-700 pt-5 first:border-t-0 first:pt-0 sm:grid-cols-2{% if forloop.first %} first:border-t-0 first:pt-0{% endif %}">
+      <div class="guardian-row grid gap-5 border-t border-line pt-5 first:border-t-0 first:pt-0 sm:grid-cols-2{% if forloop.first %} first:border-t-0 first:pt-0{% endif %}">
         {{ guardian_form.id }}
         {% for field in guardian_form.visible_fields %}{% include "ui/_field.html" with field=field %}{% endfor %}
         {% if guardian_form.instance.pk %}{% include "ui/_field.html" with field=guardian_form.DELETE %}{% endif %}
@@ -77,7 +79,7 @@
     </div>
   </section>
 
-  <div class="sticky bottom-0 -mx-4 mt-8 flex items-center justify-end gap-3 border-t border-ink-700 bg-ink-950 px-4 py-4 sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10">
+  <div class="sticky bottom-0 -mx-4 mt-8 flex items-center justify-end gap-3 border-t border-line bg-bg px-4 py-4 sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10">
     <a href="{% if object.pk %}{% url 'students:detail' object.pk %}{% else %}{% url 'students:list' %}{% endif %}" class="button-secondary">Cancel</a>
     <button type="submit" class="button-primary">{% if object.pk %}Save changes{% else %}Save student{% endif %}</button>
   </div>
@@ -86,7 +88,7 @@
 
 {% block scripts %}
 <script type="text/template" id="guardian-template">
-  <div class="guardian-row grid gap-5 border-t border-ink-700 pt-5 sm:grid-cols-2">
+  <div class="guardian-row grid gap-5 border-t border-line pt-5 sm:grid-cols-2">
     {{ guardians.empty_form.id }}
     {% for field in guardians.empty_form.visible_fields %}{% include "ui/_field.html" with field=field %}{% endfor %}
   </div>
@@ -117,7 +119,7 @@
         const image = document.createElement('img');
         image.src = URL.createObjectURL(event.target.files[0]);
         image.alt = 'Photo preview';
-        image.className = 'h-16 w-16 rounded-full object-cover ring-1 ring-ink-700';
+        image.className = 'h-16 w-16 border border-line object-cover';
         preview.appendChild(image);
       }
     });

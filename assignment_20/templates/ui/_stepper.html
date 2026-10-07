@@ -1,0 +1,10 @@
+{% load ui %}
+{% comment %}steps: list of labels; current: index of the active step.{% endcomment %}
+<ol class="stepper flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.1em]" aria-label="Import steps">
+  {% for label in steps %}
+  <li class="flex items-center gap-2">
+    <span class="{% if forloop.counter0 == current %}flex items-center gap-2 text-fg{% elif forloop.counter0 < current %}text-mute{% else %}text-faint{% endif %}">{% if forloop.counter0 == current %}<span class="h-1.5 w-1.5 rounded-full bg-accent-ink" aria-hidden="true"></span>{% endif %}{{ label }}</span>
+    {% if not forloop.last %}<span class="h-px w-8 bg-line-strong" aria-hidden="true"></span>{% endif %}
+  </li>
+  {% endfor %}
+</ol>

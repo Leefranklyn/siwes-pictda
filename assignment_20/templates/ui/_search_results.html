@@ -1,0 +1,26 @@
+{% if q %}
+<div class="absolute left-0 right-0 top-full z-40 mt-2 border border-line-strong bg-surface p-2" role="listbox" id="search-panel">
+  {% if students or courses %}
+    {% if students %}<p class="meta px-3 py-1.5">Students</p>
+      {% for student in students %}
+      <a href="{% url 'students:detail' student.pk %}" class="flex items-center gap-3 px-3 py-2 hover:bg-surface-2" role="option">
+        <i class="ti ti-user text-lg text-mute" aria-hidden="true"></i>
+        <span class="min-w-0"><span class="block truncate text-sm text-fg">{{ student.full_name }}</span>
+        <span class="block truncate font-mono text-xs text-mute">{{ student.matric_no }}, {{ student.department.name }}, {{ student.level }} level</span></span>
+      </a>
+      {% endfor %}
+    {% endif %}
+    {% if courses %}<p class="meta px-3 py-1.5">Courses</p>
+      {% for course in courses %}
+      <a href="{% url 'students:course_detail' course.pk %}" class="flex items-center gap-3 px-3 py-2 hover:bg-surface-2" role="option">
+        <i class="ti ti-book-2 text-lg text-mute" aria-hidden="true"></i>
+        <span class="min-w-0"><span class="block truncate text-sm text-fg"><span class="font-mono">{{ course.code }}</span> {{ course.title }}</span>
+        <span class="block truncate text-xs text-mute">{{ course.department.name }}, {{ course.level }} level</span></span>
+      </a>
+      {% endfor %}
+    {% endif %}
+  {% else %}
+    <p class="px-3 py-4 text-sm text-mute">No students or courses match "{{ q }}".</p>
+  {% endif %}
+</div>
+{% endif %}

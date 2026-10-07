@@ -1,0 +1,26 @@
+<div id="bulk-bar" class="bulk-bar sticky bottom-4 z-20 hidden justify-between items-center gap-4 border border-line-strong bg-surface-2 p-4" aria-live="polite">
+  <span id="bulk-count" class="text-sm text-fg" data-plural="selected">0 selected</span>
+  <div class="flex flex-wrap items-center gap-2">
+    <form method="post" action="{% url 'students:bulk_promote' %}" id="bulk-promote-form">{% csrf_token %}<input type="hidden" name="ids" id="bulk-promote-ids">
+      <button type="submit" class="button-secondary">Promote one level</button></form>
+    <button type="button" id="bulk-status-open" class="button-secondary" aria-haspopup="dialog">Change status</button>
+    <form method="post" action="{% url 'students:export' %}" id="bulk-export-form">{% csrf_token %}<input type="hidden" name="ids" id="bulk-export-ids">
+      <button type="submit" class="button-secondary">Export selected</button></form>
+    <button type="button" id="bulk-clear" class="button-ghost">Clear</button>
+  </div>
+</div>
+<dialog id="bulk-status-dialog" class="border border-line-strong bg-surface p-6 text-fg" aria-label="Change status">
+  <h2 class="section-title">Change status</h2>
+  <form method="post" action="{% url 'students:bulk_status' %}" class="mt-4 flex items-end gap-3">
+    {% csrf_token %}<input type="hidden" name="ids" id="bulk-status-ids">
+    <div class="relative">
+      <select name="status" id="bulk-status-select" class="select-field w-44" aria-label="New status">
+        {% for value, label in statuses %}{% if value != 'active' %}<option value="{{ value }}">{{ label }}</option>{% endif %}{% endfor %}
+        <option value="active">Active</option>
+      </select>
+      <i class="ti ti-chevron-down pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-mute" aria-hidden="true"></i>
+    </div>
+    <button type="submit" class="button-primary">Apply</button>
+  </form>
+  <p class="mt-3 text-xs text-mute">Applies to the selected students on this page.</p>
+</dialog>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Transcript{% endblock %} | {{ institution }}</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Syne:wght@600;700&display=swap">
+  <style>
+    :root { --bg: #EEEDE8; --surface: #F6F5F1; --line: #D3D1CA; --line-strong: #B5B3AB; --fg: #101211; --mute: #5A5E5C; --faint: #8F928F; --accent-ink: #4D6600; }
+    body { background: var(--bg); color: var(--fg); font-family: Geist, sans-serif; margin: 0; }
+    .transcript-page { max-width: 50rem; margin: 0 auto; padding: 2rem; }
+    h1, h2 { font-family: Syne, Geist, sans-serif; color: var(--fg); }
+    h1 { text-transform: uppercase; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font: 500 11px "Geist Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
+    td, th { padding: 8px 4px; border-bottom: 1px solid var(--line); }
+    .transcript-toolbar { max-width: 50rem; margin: 0 auto; padding: 1.5rem 2rem 0; display: flex; justify-content: space-between; }
+    .transcript-toolbar a, .transcript-toolbar button {
+      padding: 10px 16px; font: 700 13px Syne, sans-serif; letter-spacing: .08em; text-transform: uppercase; cursor: pointer;
+      background: var(--fg); color: var(--bg); border: 1px solid var(--line-strong); text-decoration: none; }
+    .transcript-toolbar a { background: transparent; color: var(--fg); }
+    .mono { font-family: "Geist Mono", monospace; }
+    @media print {
+      body { background: #fff !important; color: #111 !important; }
+      .no-print { display: none !important; }
+      .transcript-page { color: #111; }
+      .transcript-page * { background: transparent !important; border-color: #bbb !important; color: #111 !important; }
+      table { page-break-inside: avoid; }
+      h2 { page-break-after: avoid; }
+    }
+    @page { margin: 18mm; }
+  </style>
+</head>
+<body>
+  <div class="transcript-toolbar no-print">
+    <a href="{% block back_url %}/{% endblock %}">Back</a>
+    <button type="button" onclick="window.print()">Print or save as PDF</button>
+  </div>
+  <main class="transcript-page">
+    {% block transcript %}{% endblock %}
+  </main>
+</body>
+</html>

@@ -4,40 +4,111 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0B0C0F">
+  <meta name="theme-color" content="#EEEDE8">
   <title>{% block title %}{{ page_title|default:"Sign in" }}{% endblock %} | Student Records</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("theme");
+        if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
   {% tailwind_css %}
   <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js" defer></script>
   <script src="{% static 'js/app.js' %}" defer></script>
 </head>
-<body class="bg-ink-950 text-ink-200 font-sans antialiased" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body class="blueprint min-h-screen bg-bg font-sans text-fg antialiased" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 button-primary">Skip to content</a>
-  <div id="loading-bar" class="htmx-indicator fixed left-0 top-0 z-50 h-0.5 w-full bg-azure-400" aria-hidden="true"></div>
+  <div id="loading-bar" class="htmx-indicator fixed left-0 top-0 z-50 h-0.5 w-full bg-accent-ink" aria-hidden="true"></div>
   {% block shell %}
-    {% if not public_layout and role == 'admin' or not public_layout and role == 'staff' %}
-      <div id="drawer-overlay" class="fixed inset-0 z-40 bg-ink-950/70 lg:hidden" hidden></div>
-      {% include "_sidebar.html" %}
-    {% endif %}
-    <div {% if not public_layout and role == 'admin' or not public_layout and role == 'staff' %}class="min-w-0 lg:pl-64"{% endif %}>
-      <header class="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-ink-700 bg-ink-950 px-4 sm:px-6 lg:px-10">
-        {% if not public_layout and role == 'admin' or not public_layout and role == 'staff' %}
-          <div class="flex items-center gap-3"><button id="drawer-toggle" class="button-icon lg:hidden" aria-label="Open navigation" title="Open navigation" aria-controls="sidebar" aria-expanded="false"><i class="ti ti-menu-2 text-xl" aria-hidden="true"></i></button><span class="text-sm font-medium text-ink-50">{{ page_title }}</span></div>
-          {% if request.path == '/students/' or request.path == '/dashboard/' %}<span class="hidden text-xs text-ink-400 sm:inline">Press <kbd class="rounded border border-ink-600 bg-ink-800 px-1.5 py-0.5 font-mono text-[11px] text-ink-200">/</kbd> to search</span>{% endif %}
-        {% else %}
-          {% include "ui/_logo.html" %}
-          {% if user.is_authenticated %}<div class="flex items-center gap-3"><span class="hidden text-sm sm:inline">{{ user.get_full_name|default:user.username }}</span>{% include "ui/_avatar.html" with person=user %}<form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="button-icon" aria-label="Log out" title="Log out"><i class="ti ti-logout text-xl" aria-hidden="true"></i></button></form></div>
-          {% else %}<a href="{% url 'accounts:login' %}" class="button-primary">Sign in</a>{% endif %}
+    <header class="sticky top-0 z-30 border-b border-line bg-bg">
+      <div class="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6 lg:px-10">
+        {% include "ui/_logo.html" %}
+        {% if user.is_authenticated and not public_layout %}
+          <nav class="topnav hidden md:flex" id="topnav" aria-label="Main navigation">
+            {% if role == 'lecturer' %}
+              <a href="{% url 'students:teaching' %}" {% if request.path == '/teaching/' %}aria-current="page"{% endif %}>Teaching</a>
+            {% elif role == 'student' %}
+              <a href="{% url 'students:me' %}" {% if request.path == '/me/' %}aria-current="page"{% endif %}>Record</a>
+              <a href="{% url 'students:me_transcript' %}" {% if request.path == '/me/transcript/' %}aria-current="page"{% endif %}>Transcript</a>
+            {% else %}
+              <a href="{% url 'core:dashboard' %}" {% if request.path == '/dashboard/' %}aria-current="page"{% endif %}>Overview</a>
+              <a href="{% url 'students:list' %}" {% if request.path == '/students/' or '/students/' in request.path and role != 'admin' %}aria-current="page"{% endif %}>Students</a>
+              <a href="{% url 'students:courses' %}" {% if '/courses/' in request.path %}aria-current="page"{% endif %}>Courses</a>
+              {% if role == 'admin' %}
+                <a href="{% url 'students:departments' %}" {% if '/departments/' in request.path %}aria-current="page"{% endif %}>Departments</a>
+                <a href="{% url 'accounts:manage' %}" {% if '/accounts/manage/' in request.path %}aria-current="page"{% endif %}>Accounts</a>
+                <a href="{% url 'core:audit' %}" {% if request.path == '/audit/' %}aria-current="page"{% endif %}>Audit</a>
+              {% endif %}
+            {% endif %}
+            <span class="nav-dot" id="nav-dot" aria-hidden="true"></span>
+          </nav>
         {% endif %}
-      </header>
-      <main id="main" class="mx-auto min-w-0 {% if role == 'student' and not public_layout %}max-w-4xl{% else %}max-w-7xl{% endif %} px-4 sm:px-6 lg:px-10 py-8">
-        {% block content %}{% endblock %}
-      </main>
-      {% block footer %}{% endblock %}
+        <span class="flex-1"></span>
+        {% if user.is_authenticated and role != 'lecturer' and not public_layout %}
+        <div class="relative w-80 hidden md:block" id="global-search">
+          <i class="ti ti-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-mute" aria-hidden="true"></i>
+          <input type="search" name="global_q" value="" placeholder="Search students and courses" autocomplete="off"
+                 hx-get="{% url 'core:search' %}" hx-trigger="input changed delay:250ms" hx-target="#global-search-results" aria-label="Global search"
+                 class="field-input pl-10 pr-10">
+          <kbd class="absolute right-3 top-1/2 -translate-y-1/2">/</kbd>
+          <div id="global-search-results" class="relative"></div>
+        </div>
+        {% endif %}
+        {% if user.is_authenticated and not public_layout %}
+        <div class="mode hidden sm:grid"><span class="meta text-[9px]">Mode</span>
+          <div class="mode-group" role="group" aria-label="Theme">
+            <button type="button" data-theme-set="light" aria-pressed="false">L</button>
+            <button type="button" data-theme-set="dark" aria-pressed="false">D</button>
+          </div>
+        </div>
+        <button id="mobile-menu-toggle" class="button-icon md:hidden" aria-label="Open navigation" title="Open navigation" aria-expanded="false"><i class="ti ti-menu-2 text-xl" aria-hidden="true"></i></button>
+        <div class="flex items-center gap-2">
+          {% include "ui/_avatar.html" with person=user %}
+          <a href="{% url 'accounts:password_change' %}" class="button-icon" aria-label="Change password" title="Change password"><i class="ti ti-key text-xl" aria-hidden="true"></i></a>
+          <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="button-icon" aria-label="Log out" title="Log out"><i class="ti ti-logout text-xl" aria-hidden="true"></i></button></form>
+        </div>
+        {% if role == 'admin' %}<span class="meta hidden xl:inline">SESSION {{ current_session }}</span>{% endif %}
+        {% else %}
+          <a href="{% url 'accounts:login' %}" class="button-primary">Sign in</a>
+        {% endif %}
+      </div>
+      {% if user.is_authenticated and not public_layout %}
+      <nav id="mobile-menu" class="hidden border-t border-line md:hidden" aria-label="Main navigation">
+        <div class="flex flex-col px-4 py-3">
+          {% if role == 'lecturer' %}
+            <a href="{% url 'students:teaching' %}" class="py-2.5 font-display text-[13px] uppercase tracking-[0.08em] {% if request.path == '/teaching/' %}text-fg{% else %}text-mute{% endif %}">{% if request.path == '/teaching/' %}<span class="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" aria-hidden="true"></span>{% endif %}Teaching</a>
+          {% elif role == 'student' %}
+            <a href="{% url 'students:me' %}" class="py-2.5 font-display text-[13px] uppercase tracking-[0.08em] {% if request.path == '/me/' %}text-fg{% else %}text-mute{% endif %}">{% if request.path == '/me/' %}<span class="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" aria-hidden="true"></span>{% endif %}Record</a>
+            <a href="{% url 'students:me_transcript' %}" class="py-2.5 font-display text-[13px] uppercase tracking-[0.08em] {% if request.path == '/me/transcript/' %}text-fg{% else %}text-mute{% endif %}">{% if request.path == '/me/transcript/' %}<span class="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" aria-hidden="true"></span>{% endif %}Transcript</a>
+          {% else %}
+            <a href="{% url 'core:dashboard' %}" class="py-2.5 font-display text-[13px] uppercase tracking-[0.08em] {% if request.path == '/dashboard/' %}text-fg{% else %}text-mute{% endif %}">{% if request.path == '/dashboard/' %}<span class="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" aria-hidden="true"></span>{% endif %}Overview</a>
+            <a href="{% url 'students:list' %}" class="py-2.5 font-display text-[13px] uppercase tracking-[0.08em] {% if request.path == '/students/' or '/students/' in request.path and role != 'admin' %}text-fg{% else %}text-mute{% endif %}">{% if request.path == '/students/' or '/students/' in request.path and role != 'admin' %}<span class="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" aria-hidden="true"></span>{% endif %}Students</a>
+            <a href="{% url 'students:courses' %}" class="py-2.5 font-display text-[13px] uppercase tracking-[0.08em] {% if '/courses/' in request.path %}text-fg{% else %}text-mute{% endif %}">{% if '/courses/' in request.path %}<span class="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" aria-hidden="true"></span>{% endif %}Courses</a>
+            {% if role == 'admin' %}
+            <a href="{% url 'students:departments' %}" class="py-2.5 font-display text-[13px] uppercase tracking-[0.08em] {% if '/departments/' in request.path %}text-fg{% else %}text-mute{% endif %}">{% if '/departments/' in request.path %}<span class="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" aria-hidden="true"></span>{% endif %}Departments</a>
+            <a href="{% url 'accounts:manage' %}" class="py-2.5 font-display text-[13px] uppercase tracking-[0.08em] {% if '/accounts/manage/' in request.path %}text-fg{% else %}text-mute{% endif %}">{% if '/accounts/manage/' in request.path %}<span class="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" aria-hidden="true"></span>{% endif %}Accounts</a>
+            <a href="{% url 'core:audit' %}" class="py-2.5 font-display text-[13px] uppercase tracking-[0.08em] {% if request.path == '/audit/' %}text-fg{% else %}text-mute{% endif %}">{% if request.path == '/audit/' %}<span class="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" aria-hidden="true"></span>{% endif %}Audit</a>
+            {% endif %}
+          {% endif %}
+        </div>
+      </nav>
+      {% endif %}
+    </header>
+    <main id="main" class="mx-auto min-w-0 max-w-7xl px-4 py-8 sm:px-6 lg:px-10">
+      {% block content %}{% endblock %}
+    </main>
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
+      <footer class="meta flex flex-wrap items-center justify-between gap-2 border-t border-line py-6">
+        <span>LAST ACCESS: {% now "j M Y H:i" %}</span>
+        <span>CLASS: {% if user.is_authenticated %}{{ role|default:"member" }}{% else %}PUBLIC{% endif %}</span>
+      </footer>
     </div>
   {% endblock %}
   {% include "ui/_toasts.html" %}

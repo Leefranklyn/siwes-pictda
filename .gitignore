@@ -1,4 +1,6 @@
 .venv/
+.commandcode/
 __pycache__/
 *.pyc
 db.sqlite3
+server.log

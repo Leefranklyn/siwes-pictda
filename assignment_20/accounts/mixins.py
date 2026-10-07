@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 
-from .roles import ADMIN, STAFF, STUDENT, user_role
+from .roles import ADMIN, LECTURER, STAFF, user_role
 
 
 class RoleRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -27,8 +27,8 @@ class StaffRequiredMixin(RoleRequiredMixin):
     allowed_roles = (ADMIN, STAFF)
 
 
-class StudentSelfOnlyMixin(RoleRequiredMixin):
-    allowed_roles = (ADMIN, STAFF, STUDENT)
+class LecturerRequiredMixin(RoleRequiredMixin):
+    allowed_roles = (ADMIN, STAFF, LECTURER)
 
 
 def roles_required(*allowed_roles):

@@ -1,15 +1,29 @@
+from django.core.management import call_command
 from django.test import TestCase
 
 from core.models import AuditLog
-from students.models import Course, Department, Student
-from students.tests.test_models import enroll, make_course, make_student
-from students.tests.test_views import make_admin_user, make_staff_user
+from students.models import Department
+from students.tests.helpers import (
+    make_admin_user, make_course, make_staff_user, make_student,
+)
 
 
 class AuditLogTests(TestCase):
     def setUp(self):
         self.admin = make_admin_user()
         self.client.force_login(self.admin)
+
+    def valid_data(self, **overrides):
+        department, _ = Department.objects.get_or_create(name="Computer Science")
+        data = {
+            "first_name": "Ada", "last_name": "Obi", "email": "ada@example.com",
+            "phone": "+2348012345678", "dob": "2005-05-12", "gender": "female",
+            "matric_no": "VUG/CSC/24/10001", "department": department.pk,
+            "level": "200", "status": "active", "enrolled_on": "2025-01-10",
+            "guardians-TOTAL_FORMS": "0", "guardians-INITIAL_FORMS": "0",
+        }
+        data.update(overrides)
+        return data
 
     def test_create_is_logged(self):
         self.client.post("/students/add/", self.valid_data())
@@ -45,18 +59,6 @@ class AuditLogTests(TestCase):
         response = self.client.get("/audit/", {"action": "create", "model": "Student"})
         self.assertEqual(response.status_code, 200)
 
-    def valid_data(self, **overrides):
-        department, _ = Department.objects.get_or_create(name="Computer Science")
-        data = {
-            "first_name": "Ada", "last_name": "Obi", "email": "ada@example.com",
-            "phone": "+2348012345678", "dob": "2005-05-12", "gender": "female",
-            "matric_no": "VUG/CSC/24/10001", "department": department.pk,
-            "level": "200", "status": "active", "enrolled_on": "2025-01-10",
-            "guardians-TOTAL_FORMS": "0", "guardians-INITIAL_FORMS": "0",
-        }
-        data.update(overrides)
-        return data
-
 
 class DashboardTests(TestCase):
     def setUp(self):
@@ -90,7 +92,7 @@ class PublicPagesTests(TestCase):
     def test_home(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Manage students, courses, and CGPA")
+        self.assertContains(response, "Student Management System")
 
     def test_error_pages(self):
         response = self.client.get("/no/such/page/")

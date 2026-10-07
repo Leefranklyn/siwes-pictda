@@ -1,0 +1,44 @@
+{# Base template for the StudentHub site (Assignment 19). #}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StudentHub{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'pages/css/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="{% url 'home' %}" class="brand">
+                <span class="logo-mark"></span>
+                <span>StudentHub</span>
+            </a>
+            <nav class="nav">
+                <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
+                <a href="{% url 'about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">About</a>
+                <a href="{% url 'students' %}" class="nav-link {% if request.resolver_match.url_name == 'students' %}active{% endif %}">Students</a>
+                <a href="{% url 'contact' %}" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Contact</a>
+            </nav>
+            <a href="{% url 'register' %}" class="btn btn-primary nav-cta">Register Now</a>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <span>© 2026 StudentHub · Built with Django</span>
+            <span class="footer-links">
+                <a href="{% url 'about' %}">About</a>
+                <a href="{% url 'contact' %}">Contact</a>
+                <a href="{% url 'register' %}">Register</a>
+            </span>
+        </div>
+    </footer>
+</body>
+</html>

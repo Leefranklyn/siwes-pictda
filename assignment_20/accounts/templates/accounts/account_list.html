@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block content %}
+<div class="flex flex-wrap items-end justify-between gap-4">
+  {% include "ui/_page_header.html" with number="05" title="Accounts" description="User logins and their roles." %}
+  <a href="{% url 'accounts:account_add' %}" class="button-primary"><i class="ti ti-plus text-lg" aria-hidden="true"></i>Add account</a>
+</div>
+
+{% if credentials %}
+<div class="credential-panel mt-6 border-accent-ink bg-surface" data-credentials>
+  <h2 class="section-title">Temporary password for {{ credentials.username }}</h2>
+  <p class="mt-1 text-sm text-mute">Copy it now. It is shown only this once and is not stored.</p>
+  <div class="mt-4 flex items-center gap-3">
+    <code class="border border-line-strong bg-surface-2 px-4 py-2.5 font-mono text-sm text-fg">{{ credentials.password }}</code>
+    <button type="button" class="button-secondary" data-copy-credentials>Copy</button>
+  </div>
+</div>
+{% endif %}
+
+<div class="mt-6 flex flex-wrap items-center gap-3">
+  <form method="get" class="group relative min-w-64 flex-1">
+    <i class="ti ti-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-mute" aria-hidden="true"></i>
+    <input type="search" name="q" value="{{ request.GET.q }}" placeholder="Search by name, username, or email" aria-label="Search accounts" class="field-input pl-10">
+  </form>
+  <div class="segmented" role="tablist" aria-label="Filter by role">
+    <a href="{% url 'accounts:manage' %}" class="segmented-item {% if not role_filter %}segmented-active{% endif %}">All ({{ counts.all }})</a>
+    <a href="{% url 'accounts:manage' %}?role=admin" class="segmented-item {% if role_filter == 'admin' %}segmented-active{% endif %}">Admin ({{ counts.admin }})</a>
+    <a href="{% url 'accounts:manage' %}?role=staff" class="segmented-item {% if role_filter == 'staff' %}segmented-active{% endif %}">Staff ({{ counts.staff }})</a>
+    <a href="{% url 'accounts:manage' %}?role=lecturer" class="segmented-item {% if role_filter == 'lecturer' %}segmented-active{% endif %}">Lecturer ({{ counts.lecturer }})</a>
+    <a href="{% url 'accounts:manage' %}?role=student" class="segmented-item {% if role_filter == 'student' %}segmented-active{% endif %}">Student ({{ counts.student }})</a>
+  </div>
+</div>
+
+{% if rows %}
+<div class="table-wrapper mt-6">
+  <table class="data-table">
+    <thead>
+      <tr><th scope="col">User</th><th scope="col">Role</th><th scope="col">Linked record</th><th scope="col">Status</th><th scope="col">Last login</th><th scope="col" class="text-right"><span class="sr-only">Actions</span></th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>
+          <div class="flex items-center gap-3">
+            {% include "ui/_avatar.html" with person=row.user %}
+            <span class="min-w-0">
+              <span class="block truncate max-w-[16rem] font-medium text-fg">{{ row.user.get_full_name|default:row.user.username }}</span>
+              <span class="block truncate max-w-[16rem] font-mono text-xs text-mute">{{ row.user.username }}</span>
+            </span>
+          </div>
+        </td>
+        <td>{% include "ui/_status_badge.html" with status=row.role %}</td>
+        <td>
+          {% if row.role == 'student' and row.record %}<a href="{% url 'students:detail' row.record.pk %}" class="text-link font-mono text-[13px]">{{ row.record.matric_no }}</a>
+          {% elif row.role == 'lecturer' and row.record %}<span class="font-mono text-[13px]">{{ row.record.staff_number }}</span>
+          {% else %}<span class="text-faint">-</span>{% endif %}
+        </td>
+        <td>{% if row.active %}<span class="text-accent-ink">Active</span>{% else %}<span class="text-mute">Deactivated</span>{% endif %}</td>
+        <td class="tabular-nums">{{ row.user.last_login|timesince|default:"Never" }}</td>
+        <td class="row-actions"><div class="flex justify-end gap-1">
+          <a href="{% url 'accounts:account_edit' row.user.pk %}" class="button-icon" aria-label="Edit {{ row.user.username }}" title="Edit {{ row.user.username }}"><i class="ti ti-pencil text-lg" aria-hidden="true"></i></a>
+          <form method="post" action="{% url 'accounts:account_reset' row.user.pk %}">{% csrf_token %}
+            <button type="submit" class="button-icon" aria-label="Reset password for {{ row.user.username }}" title="Reset password"><i class="ti ti-key text-lg" aria-hidden="true"></i></button>
+          </form>
+          {% if row.user != request.user %}
+          <form method="post" action="{% url 'accounts:account_toggle' row.user.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="button-icon {% if row.active %}hover:text-danger{% endif %}"
+                    aria-label="{% if row.active %}Deactivate{% else %}Reactivate{% endif %} {{ row.user.username }}"
+                    title="{% if row.active %}Deactivate{% else %}Reactivate{% endif %}">
+              <i class="ti {% if row.active %}ti-user-off{% else %}ti-user-check{% endif %} text-lg" aria-hidden="true"></i>
+            </button>
+          </form>
+          {% endif %}
+        </div></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "ui/_pagination.html" %}
+{% else %}
+{% include "ui/_empty_state.html" with icon="ti-users-group" title="No accounts match" body="Try a different name, username, or email." action_url="/accounts/manage/" action_label="Clear filters" %}
+{% endif %}
+{% endblock %}

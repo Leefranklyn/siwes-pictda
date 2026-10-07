@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block content %}
+{% include "ui/_stepper.html" with steps="Upload,Review,Done"|split current=2 %}
+{% include "ui/_page_header.html" with number="02" title="Import complete" %}
+<div class="card mt-8 max-w-2xl">
+  <p class="text-sm text-fg">{{ created }} students created, {{ skipped }} skipped.</p>
+  <div class="mt-6 flex flex-wrap gap-3">
+    <a href="/students/?created_batch={{ batch.pk }}" class="button-primary">Open the student list</a>
+    {% if has_credentials %}<a href="{% url 'students:import_credentials' batch.pk %}" class="button-secondary">Download logins CSV</a>{% endif %}
+    <a href="{% url 'students:import_history' %}" class="button-ghost">Import history</a>
+  </div>
+  <p class="meta mt-4 normal-case">The logins CSV can be downloaded once and then expires.</p>
+</div>
+{% endblock %}

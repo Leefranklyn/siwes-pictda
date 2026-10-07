@@ -1,0 +1,11 @@
+{% comment %}One compact segmented grade control for a grade sheet row.
+name: input name, grade: current grade, disabled: bool.{% endcomment %}
+<fieldset class="grade-radio inline-flex border border-line-strong bg-surface p-1">
+  <legend class="sr-only">Grade</legend>
+  <input type="radio" id="{{ name }}-blank" name="{{ name }}" value="" {% if not grade %}checked{% endif %} class="sr-only">
+  <label for="{{ name }}-blank" class="grade-option" title="No grade">-</label>
+  {% for value in "ABCDEF" %}
+  <input type="radio" id="{{ name }}-{{ value }}" name="{{ name }}" value="{{ value }}" {% if grade == value %}checked{% endif %} class="sr-only" {% if disabled %}disabled{% endif %}>
+  <label for="{{ name }}-{{ value }}" class="grade-option">{{ value }}</label>
+  {% endfor %}
+</fieldset>

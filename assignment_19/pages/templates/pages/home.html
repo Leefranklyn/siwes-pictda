@@ -1,0 +1,52 @@
+{# Home page: hero with live stats + features. #}
+{% extends 'pages/base.html' %}
+
+{% block title %}Home | StudentHub{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1>A simple student registration portal.</h1>
+        <p class="lead">Register in under a minute and see every student on the public roster. Built with Django for Assignment 19.</p>
+        <div class="hero-actions">
+            <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
+            <a href="{% url 'students' %}" class="btn btn-secondary">View Students</a>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="num">{{ student_count }}</div>
+                <div class="lbl">Students registered</div>
+            </div>
+            <div class="stat">
+                <div class="num">{{ course_count }}</div>
+                <div class="lbl">Courses</div>
+            </div>
+            <div class="stat">
+                <div class="num">{{ latest_date|date:"M d" }}</div>
+                <div class="lbl">Latest signup</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" style="padding-top: 0;">
+    <div class="container">
+        <h2>What's included</h2>
+        <div class="feature-grid">
+            <div class="feature">
+                <h3>Fast registration</h3>
+                <p>A short validated form — name, age, course, phone and email.</p>
+            </div>
+            <div class="feature">
+                <h3>Public roster</h3>
+                <p>Every registered student appears on the Students page immediately.</p>
+            </div>
+            <div class="feature">
+                <h3>Built with Django</h3>
+                <p>Function-based views, named URLs, model forms and a real database.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -7,5 +7,7 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("dashboard/", views.dashboard, name="dashboard"),
     path("dashboard/charts.json", views.charts_json, name="charts"),
+    path("search/", views.global_search, name="search"),
     path("audit/", views.AuditLogListView.as_view(), name="audit"),
+    path("audit/export.csv", views.audit_export, name="audit_export"),
 ]

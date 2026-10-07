@@ -8,7 +8,7 @@ students = []
 
 def add_student():
     """Add a student's information to the database."""
-    student = {
+    student = { 
         "Name": input("Enter Student Name: "),
         "Age": input("Enter Student Age: "),
         "Course": input("Enter Student Course: "),

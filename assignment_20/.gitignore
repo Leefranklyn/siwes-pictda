@@ -1,5 +1,7 @@
 .venv/
+.commandcode/
 .env
+*.env
 __pycache__/
 *.py[cod]
 db.sqlite3

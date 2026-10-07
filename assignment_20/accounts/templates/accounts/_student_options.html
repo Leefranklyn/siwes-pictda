@@ -1,0 +1,15 @@
+{% load ui %}
+{% if students %}
+  {% for student in students %}
+  <label class="flex cursor-pointer items-center gap-3 border border-line bg-surface p-3 has-[:checked]:border-accent-ink">
+    <input type="radio" name="student" value="{{ student.pk }}" {% if selected == student.pk|stringformat:"s" %}checked{% endif %} class="h-4 w-4 accent-accent-ink">
+    {% include "ui/_avatar.html" with person=student %}
+    <span class="min-w-0">
+      <span class="block truncate text-sm font-medium text-fg">{{ student.full_name }}</span>
+      <span class="block truncate font-mono text-xs text-mute">{{ student.matric_no }}</span>
+    </span>
+  </label>
+  {% endfor %}
+{% else %}
+<p class="text-sm text-mute">No students without a login{{ query|default:""|length|yesno:", matching that search," }}.</p>
+{% endif %}

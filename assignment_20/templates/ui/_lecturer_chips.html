@@ -1,0 +1,7 @@
+{% comment %}lecturers: a queryset of lecturers to show as chips.{% endcomment %}
+<div class="flex flex-wrap items-center gap-2">
+  {% for lecturer in lecturers %}
+  <span class="chip"><span class="font-medium">{{ lecturer.title }} {{ lecturer.user.last_name }}</span>
+  <span class="font-mono text-[11px] text-mute">{{ lecturer.staff_number }}</span></span>
+  {% empty %}<span class="text-sm text-mute">Unassigned</span>{% endfor %}
+</div>

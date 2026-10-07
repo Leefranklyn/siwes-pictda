@@ -2,15 +2,15 @@ from django import forms
 from django.conf import settings
 from django.forms import inlineformset_factory
 
-from .models import Course, Enrollment, Guardian, Student
+from .models import Course, Department, Enrollment, Guardian, Student
 
 
-INPUT = ("block w-full rounded-lg border border-ink-600 bg-ink-900 px-3.5 py-2.5 text-sm text-ink-50 "
-         "placeholder:text-ink-400 focus:border-azure-400 focus:outline-none focus:ring-2 "
-         "focus:ring-azure-400/30 aria-[invalid=true]:border-danger-500")
-CHECK = "h-4 w-4 rounded border-ink-600 bg-ink-900 text-azure-500 focus:ring-azure-400"
-FILE = ("block w-full text-sm text-ink-400 file:mr-4 file:rounded-lg file:border-0 file:bg-ink-800 "
-        "file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink-50 hover:file:bg-ink-700")
+INPUT = ("block w-full border border-line-strong bg-bg px-3.5 py-2.5 text-sm text-fg "
+         "placeholder:text-faint focus:border-accent-ink focus:outline-none "
+         "aria-[invalid=true]:border-danger")
+CHECK = "h-4 w-4 accent-accent-ink"
+FILE = ("block w-full text-sm text-mute file:mr-4 file:border-0 file:bg-surface-2 "
+        "file:px-4 file:py-2 file:text-sm file:font-medium file:text-fg hover:file:bg-line")
 
 
 class TailwindFormMixin:
@@ -18,6 +18,11 @@ class TailwindFormMixin:
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             widget = field.widget
+            if isinstance(widget, (forms.CheckboxSelectMultiple, forms.RadioSelect)):
+                # Option lists render their inputs inside labelled rows; the
+                # component CSS sizes them, so they must not inherit the
+                # full-width text-input classes.
+                continue
             if isinstance(widget, forms.CheckboxInput):
                 css = CHECK
             elif isinstance(widget, forms.FileInput):
@@ -71,11 +76,48 @@ GuardianFormSet = inlineformset_factory(Student, Guardian, form=GuardianForm, ex
 class CourseForm(TailwindFormMixin, forms.ModelForm):
     class Meta:
         model = Course
-        fields = ["code", "title", "credit_units", "department"]
-        widgets = {"code": forms.TextInput(attrs={"class": "font-mono"})}
+        fields = ["code", "title", "credit_units", "department", "level", "semester", "lecturers"]
+        widgets = {
+            "code": forms.TextInput(attrs={"class": "font-mono"}),
+            "lecturers": forms.CheckboxSelectMultiple,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["lecturers"].help_text = "Lecturers from other departments are allowed."
+        self.fields["lecturers"].label_from_instance = lambda lecturer: (
+            f"{lecturer.full_name}, {lecturer.department.name} ({lecturer.staff_number})")
 
     def clean_code(self):
-        return self.cleaned_data["code"].strip().upper()
+        code = self.cleaned_data["code"].strip().upper()
+        duplicate = Course.objects.filter(code__iexact=code)
+        if self.instance.pk:
+            duplicate = duplicate.exclude(pk=self.instance.pk)
+        if duplicate.exists():
+            raise forms.ValidationError("A course with this code already exists.")
+        return code
+
+
+class DepartmentForm(TailwindFormMixin, forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ["name"]
+
+    def clean_name(self):
+        name = self.cleaned_data["name"].strip()
+        duplicate = Department.objects.filter(name__iexact=name)
+        if self.instance.pk:
+            duplicate = duplicate.exclude(pk=self.instance.pk)
+        if duplicate.exists():
+            raise forms.ValidationError("A department with this name already exists.")
+        return name
+
+
+class StudentImportForm(forms.Form):
+    """Upload step for the students CSV import."""
+    file = forms.FileField(label="CSV file")
+    skip_errors = forms.BooleanField(label="Skip rows with errors", required=False, initial=False)
+    create_logins = forms.BooleanField(label="Create a login for each new student", required=False, initial=False)
 
 
 class EnrollmentForm(TailwindFormMixin, forms.ModelForm):

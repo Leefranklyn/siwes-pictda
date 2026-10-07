@@ -1,0 +1,7 @@
+{% comment %}number: page position in the nav, title, description, hint: optional keyboard hint line.{% endcomment %}
+<div class="reveal">
+  <p class="section-no">{{ number }}</p>
+  <h1 class="page-title mt-3">{{ title }}</h1>
+  {% if description %}<p class="desc mt-3 max-w-prose">{{ description }}</p>{% endif %}
+  {% if hint %}<p class="meta mt-2">{{ hint }}</p>{% endif %}
+</div>

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="meta"><a href="{% url 'accounts:manage' %}" class="hover:text-fg">Accounts</a><span class="mx-1.5 text-faint">/</span><span class="text-fg">{{ page_title }}</span></p>
+<h1 class="page-title mt-3">{{ page_title }}</h1>
+
+{% if form.non_field_errors %}<div class="error-notice mt-6" role="alert">{{ form.non_field_errors.0 }}</div>{% endif %}
+
+<form method="post" class="pb-4">
+  {% csrf_token %}
+  <section class="form-section">
+    <div>
+      <div class="section-no">01</div>
+      <h2 class="section-title mt-3">Identity</h2>
+      <p class="desc mt-2">The person this login belongs to</p>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:col-span-2">
+      {% include "ui/_field.html" with field=form.first_name %}
+      {% include "ui/_field.html" with field=form.last_name %}
+      {% include "ui/_field.html" with field=form.email %}
+      {% include "ui/_field.html" with field=form.username %}
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div>
+      <div class="section-no">02</div>
+      <h2 class="section-title mt-3">Role</h2>
+      <p class="desc mt-2">What this account can do</p>
+    </div>
+    <div class="grid gap-3 sm:grid-cols-2 lg:col-span-2" id="role-cards">
+      {% for choice in form.role %}
+      <label class="card flex cursor-pointer items-start gap-3 p-4 has-[:checked]:border-accent-ink">
+        {{ choice.tag }}
+        <span>
+          <span class="block text-sm font-medium text-fg">{{ choice.choice_label }}</span>
+          <span class="block text-xs text-mute">
+            {% if choice.choice_label == "Admin" %}Everything, including accounts, departments, and the audit log.
+            {% elif choice.choice_label == "Staff" %}Students, enrollments, grades, and exports.
+            {% elif choice.choice_label == "Lecturer" %}Rosters and grades for the courses they teach.
+            {% else %}Their own record and transcript.{% endif %}
+          </span>
+        </span>
+      </label>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="form-section" id="student-link" data-role="student">
+    <div>
+      <div class="section-no">03</div>
+      <h2 class="section-title mt-3">Linked record</h2>
+      <p class="desc mt-2">Shown to students only</p>
+    </div>
+    <div class="lg:col-span-2">
+      <div class="relative">
+        <input type="search" name="student_search" placeholder="Search students without a login" aria-label="Search students"
+               hx-get="{% url 'accounts:link_students' %}" hx-trigger="input changed delay:200ms" hx-target="#student-options" class="field-input pl-10">
+        <i class="ti ti-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-mute" aria-hidden="true"></i>
+      </div>
+      <div id="student-options" class="mt-3 grid gap-3 sm:grid-cols-2">
+        {% include "accounts/_student_options.html" %}
+      </div>
+      {% include "ui/_field.html" with field=form.student %}
+    </div>
+  </section>
+
+  <section class="form-section" id="lecturer-profile" data-role="lecturer">
+    <div>
+      <div class="section-no">04</div>
+      <h2 class="section-title mt-3">Lecturer profile</h2>
+      <p class="desc mt-2">Staff number, title, and department</p>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:col-span-2">
+      {% include "ui/_field.html" with field=form.staff_number %}
+      {% include "ui/_field.html" with field=form.title %}
+      {% include "ui/_field.html" with field=form.department %}
+      {% include "ui/_field.html" with field=form.phone %}
+    </div>
+  </section>
+
+  {% if creating %}
+  <section class="form-section">
+    <div>
+      <div class="section-no">05</div>
+      <h2 class="section-title mt-3">Password</h2>
+      <p class="desc mt-2">They must choose a new password at first sign in.</p>
+    </div>
+    <div class="space-y-1.5 lg:col-span-2">
+      <label for="{{ form.password.id_for_label }}" class="field-label block">{{ form.password.label }}</label>
+      <div class="flex items-stretch gap-3">
+        {{ form.password }}
+        <button type="button" id="generate-password" class="button-secondary shrink-0">Generate</button>
+      </div>
+      {% if form.password.help_text %}<p id="{{ form.password.auto_id }}_helptext" class="text-xs text-mute">{{ form.password.help_text }}</p>{% endif %}
+      {% if form.password.errors %}<div id="{{ form.password.auto_id }}_error" role="alert">{% for error in form.password.errors %}<p class="flex items-center gap-1.5 text-xs text-danger"><i class="ti ti-alert-circle" aria-hidden="true"></i>{{ error }}</p>{% endfor %}</div>{% endif %}
+    </div>
+  </section>
+  {% else %}
+  <section class="form-section">
+    <div>
+      <div class="section-no">05</div>
+      <h2 class="section-title mt-3">Status</h2>
+      <p class="desc mt-2">Deactivated users cannot sign in.</p>
+    </div>
+    <div class="lg:col-span-2">
+      <label class="flex items-center gap-3 text-sm text-fg">{{ form.is_active }} Active</label>
+      {% if form.is_active.errors %}<p class="mt-2 text-sm text-danger">{{ form.is_active.errors.0 }}</p>{% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  <div class="sticky bottom-0 -mx-4 flex items-center justify-end gap-3 border-t border-line bg-bg px-4 py-4 sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10">
+    <a href="{% url 'accounts:manage' %}" class="button-secondary">Cancel</a>
+    <button type="submit" class="button-primary">{% if creating %}Create account{% else %}Save changes{% endif %}</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% load ui %}
+{% if courses %}
+<div class="table-wrapper">
+  <table class="data-table">
+    <thead>
+      <tr><th scope="col">Code</th><th scope="col">Title</th><th scope="col" class="hidden md:table-cell">Department</th><th scope="col" class="hidden md:table-cell">Level</th><th scope="col">Semester</th><th scope="col">Units</th><th scope="col" class="hidden lg:table-cell">Lecturers</th><th scope="col">Students</th><th scope="col" class="text-right"><span class="sr-only">Actions</span></th></tr>
+    </thead>
+    <tbody>
+      {% for course in courses %}
+      <tr>
+        <td class="font-mono text-[13px] text-fg"><a href="{% url 'students:course_detail' course.pk %}" class="hover:text-accent-ink">{{ course.code }}</a></td>
+        <td class="text-fg"><a href="{% url 'students:course_detail' course.pk %}" class="block truncate max-w-[18rem] hover:text-accent-ink" title="{{ course.title }}">{{ course.title }}</a></td>
+        <td class="hidden md:table-cell">{{ course.department.name }}</td>
+        <td class="hidden md:table-cell tabular-nums">{{ course.level }} level</td>
+        <td>{{ course.get_semester_display }}</td>
+        <td class="tabular-nums">{{ course.credit_units }}</td>
+        <td class="hidden lg:table-cell">{% include "ui/_lecturer_chips.html" with lecturers=course.lecturers.all %}</td>
+        <td class="tabular-nums">{{ course.student_count }}</td>
+        <td class="row-actions"><div class="flex justify-end gap-1">
+          <a href="{% url 'students:course_detail' course.pk %}" class="button-icon" aria-label="Open {{ course.code }}" title="Open {{ course.code }}"><i class="ti ti-eye text-lg" aria-hidden="true"></i></a>
+          {% if can_edit %}<a href="{% url 'students:course_edit' course.pk %}" class="button-icon" aria-label="Edit {{ course.code }}" title="Edit {{ course.code }}"><i class="ti ti-pencil text-lg" aria-hidden="true"></i></a>{% endif %}
+        </div></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "ui/_pagination.html" with live=True noun="courses" %}
+{% else %}
+{% include "ui/_empty_state.html" with icon="ti-book-2" title="No courses found" body="Try a different search or clear the filters." %}
+{% endif %}

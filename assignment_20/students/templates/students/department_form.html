@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "ui/_breadcrumb.html" with items=breadcrumb %}
+<h1 class="page-title mt-4">{{ page_title }}</h1>
+{% if form.errors %}<div class="error-notice mt-6" role="alert">{{ form.name.errors.0|default:"Fix the highlighted field and save again." }}</div>{% endif %}
+<form method="post" class="card mt-8 max-w-xl">
+  {% csrf_token %}
+  {% include "ui/_field.html" with field=form.name %}
+  <div class="mt-8 flex items-center justify-end gap-3">
+    <a href="{% url 'students:departments' %}" class="button-secondary">Cancel</a>
+    <button type="submit" class="button-primary">{% if object.pk %}Save changes{% else %}Add department{% endif %}</button>
+  </div>
+</form>
+{% endblock %}

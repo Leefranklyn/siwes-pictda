@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "ui/_breadcrumb.html" with items=breadcrumb %}
+<h1 class="page-title mt-4">Delete department</h1>
+<div class="card mt-8 max-w-xl">
+  <p class="text-sm text-fg">Delete this department?</p>
+  <p class="mt-2 text-sm text-mute"><span class="text-fg">{{ object.name }}</span> will be removed. This cannot be undone.</p>
+  {% if counts.students or counts.courses or counts.lecturers %}
+  <div class="mt-6 border border-line-strong bg-surface-2 p-4 text-sm text-fg">
+    <p>This department still has:</p>
+    <ul class="mt-2 list-disc pl-5 text-mute">
+      {% if counts.students %}<li>{{ counts.students }} students</li>{% endif %}
+      {% if counts.courses %}<li>{{ counts.courses }} courses</li>{% endif %}
+      {% if counts.lecturers %}<li>{{ counts.lecturers }} lecturers</li>{% endif %}
+    </ul>
+    <p class="mt-3 font-medium text-fg">Move or remove these first.</p>
+  </div>
+  <div class="mt-8 flex justify-end gap-3"><a href="{% url 'students:departments' %}" class="button-secondary">Back</a></div>
+  {% else %}
+  <form method="post" class="mt-8 flex justify-end gap-3">
+    {% csrf_token %}
+    <a href="{% url 'students:departments' %}" class="button-secondary">Cancel</a>
+    <button type="submit" class="button-danger">Delete department</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

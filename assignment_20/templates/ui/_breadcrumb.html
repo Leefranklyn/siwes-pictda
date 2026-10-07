@@ -1,0 +1,7 @@
+{% load ui %}
+{% comment %}Items: a list of {label, url} with the last one current.{% endcomment %}
+<nav aria-label="Breadcrumb" class="meta normal-case">
+  {% for item in items %}{% if not forloop.first %}<span class="mx-1.5 text-faint">/</span>{% endif %}
+  {% if item.url and not forloop.last %}<a href="{{ item.url }}" class="hover:text-fg">{{ item.label }}</a>{% else %}<span class="text-fg">{{ item.label }}</span>{% endif %}
+  {% endfor %}
+</nav>

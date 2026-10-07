@@ -1,0 +1,37 @@
+{# About page. #}
+{% extends 'pages/base.html' %}
+
+{% block title %}About | StudentHub{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div class="container">
+        <h1>About StudentHub</h1>
+        <p>A student registration website built with the Django framework for Assignment 19.</p>
+    </div>
+</section>
+
+<section class="section" style="padding-top: 0;">
+    <div class="container">
+        <div class="card">
+            <p>StudentHub demonstrates how a Django project is organized into projects, apps, views, URLs and templates — and how a ModelForm turns a plain HTML form into rows in a real database.</p>
+            <p style="margin-top: .8rem;">Every registration submitted through the Register page is validated server-side and stored in SQLite. The Students page reads those rows back and renders them as a roster.</p>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature">
+                <h3>Project &amp; app</h3>
+                <p>The <code>config</code> project holds settings and root URLs; the <code>pages</code> app holds views, forms, models and templates.</p>
+            </div>
+            <div class="feature">
+                <h3>Views &amp; URLs</h3>
+                <p>Function-based views are mapped to named routes like <code>/register/</code> and <code>/students/</code>.</p>
+            </div>
+            <div class="feature">
+                <h3>Models &amp; forms</h3>
+                <p>The <code>Student</code> model persists registrations; a ModelForm generates and validates its fields.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

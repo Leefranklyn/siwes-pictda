@@ -1,26 +1,7 @@
 from django.test import TestCase
 
-from students.models import Course, Department, Enrollment, Student
-
-
-def make_student(**overrides):
-    department, _ = Department.objects.get_or_create(name="Computer Science")
-    fields = {
-        "matric_no": "VUG/CSC/24/10001", "first_name": "Ada", "last_name": "Obi",
-        "email": "ada@example.com", "phone": "+2348012345678", "dob": "2005-05-12",
-        "gender": "female", "department": department, "level": 200, "status": "active",
-    }
-    fields.update(overrides)
-    return Student.objects.create(**fields)
-
-
-def make_course(code="CSC101", units=3):
-    department, _ = Department.objects.get_or_create(name="Computer Science")
-    return Course.objects.create(code=code, title=f"{code} title", credit_units=units, department=department)
-
-
-def enroll(student, course, grade=None, session="2025/2026", semester="first"):
-    return Enrollment.objects.create(student=student, course=course, session=session, semester=semester, grade=grade)
+from students.models import Student
+from students.tests.helpers import enroll, make_course, make_student
 
 
 class CgpaTests(TestCase):

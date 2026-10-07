@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block content %}
+{% include "ui/_stepper.html" with steps="Upload,Review,Done"|split current=0 %}
+{% include "ui/_page_header.html" with number="03" title="Import grades" %}
+<p class="desc mt-3">Columns: matric_no, grade (A to F or blank). Session {{ session }}.</p>
+{% if messages %}{% endif %}
+<form method="post" enctype="multipart/form-data" class="card mt-8">
+  {% csrf_token %}
+  <div class="border border-dashed border-line-strong p-10 text-center">
+    <i class="ti ti-file-upload text-3xl text-mute" aria-hidden="true"></i>
+    <p class="mt-3 text-sm text-fg">Choose a CSV file to upload</p>
+    <div class="mt-4"><input type="file" name="file" accept=".csv" required class="field-input mx-auto max-w-sm"></div>
+  </div>
+  <div class="mt-8 flex items-center justify-end gap-3">
+    <a href="{% url 'students:course_detail' course.pk %}?session={{ session }}" class="button-secondary">Cancel</a>
+    <button type="submit" class="button-primary">Preview import</button>
+  </div>
+</form>
+{% endblock %}

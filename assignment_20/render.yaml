@@ -1,0 +1,68 @@
+services:
+  - type: web
+    name: student-records
+    env: python
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+      python manage.py seed_demo
+    startCommand: gunicorn --workers 2 --bind 0.0.0.0:$PORT config.wsgi:application
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://*.onrender.com"
+      # Render terminates TLS and forwards X-Forwarded-Proto; without this the
+      # forced-HTTPS redirect loops forever.
+      - key: TRUST_PROXY_HEADERS
+        value: "True"
+      - key: DEMO_MODE
+        value: "True"
+      - key: DEMO_ADMIN_PASSWORD
+        sync: false
+      - key: DEMO_STAFF_PASSWORD
+        sync: false
+      - key: DEMO_LECTURER_PASSWORD
+        sync: false
+      - key: DEMO_STUDENT_PASSWORD
+        sync: false
+      - key: CURRENT_SESSION
+        sync: false
+      - key: INSTITUTION_NAME
+        sync: false
+      # Paste the Neon pooled connection string (with the app database name)
+      # into this variable in the Render dashboard — no Render-hosted database.
+      - key: DATABASE_URL
+        sync: false
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      # Cloudflare R2 (S3-compatible) object storage for uploaded photos.
+      - key: USE_S3
+        value: "True"
+      - key: PHOTO_UPLOADS
+        value: "True"
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_STORAGE_BUCKET_NAME
+        sync: false
+      - key: AWS_S3_ENDPOINT_URL
+        sync: false
+      - key: AWS_S3_CUSTOM_DOMAIN
+        sync: false
+      - key: AWS_S3_REGION_NAME
+        value: "auto"
+      # R2 needs path-style addressing with its S3 endpoint.
+      - key: AWS_S3_ADDRESSING_STYLE
+        value: "path"

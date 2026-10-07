@@ -1,0 +1,51 @@
+{# Students page: roster of everyone registered. #}
+{% extends 'pages/base.html' %}
+
+{% block title %}Students | StudentHub{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div class="container">
+        <h1>Registered Students</h1>
+        <p>Everyone who has signed up through the registration form, newest first — currently {{ students|length }} student{{ students|length|pluralize }} across {{ course_count }} course{{ course_count|pluralize }}.</p>
+    </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+    <div class="container">
+        {% if students %}
+        <div class="table-wrap">
+            <table class="students">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Course</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Registered</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.age }}</td>
+                        <td><span class="tag">{{ student.course }}</span></td>
+                        <td>{{ student.phone }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>{{ student.registered_at|date:"M d, Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card empty-state">
+            <p>No students have registered yet.</p>
+            <p style="margin-top: 1rem;"><a href="{% url 'register' %}" class="btn btn-primary">Register the first student</a></p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
