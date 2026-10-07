@@ -2,6 +2,9 @@ services:
   - type: web
     name: student-records
     env: python
+    # In this monorepo the Django project lives in this folder; builds and
+    # commands run from here instead of the repository root.
+    rootDir: assignment_20
     plan: free
     buildCommand: |
       pip install -r requirements.txt
